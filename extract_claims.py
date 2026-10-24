@@ -17,7 +17,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from common import DATA_DIR, CORPUS_DIR, load_pages, norm_entity, tokenize
+try:
+    from .common import DATA_DIR, CORPUS_DIR, load_pages, norm_entity, tokenize
+except ImportError:
+    from common import DATA_DIR, CORPUS_DIR, load_pages, norm_entity, tokenize
 
 OUT_FILE = DATA_DIR / "claims.jsonl"
 CACHE_DIR = DATA_DIR / "extraction_cache"

@@ -14,7 +14,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from common import BM25, CORPUS_DIR, DATA_DIR, load_pages, norm_entity, tokenize
+try:
+    from .common import BM25, CORPUS_DIR, DATA_DIR, load_pages, norm_entity, tokenize
+except ImportError:
+    from common import BM25, CORPUS_DIR, DATA_DIR, load_pages, norm_entity, tokenize
 
 
 class Hit:
@@ -41,7 +44,15 @@ class Hit:
         self.score = float(score)
         self.extra = extra or {}
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: Any) -> Any:
+        if isinstance(key, int):
+            if key == 0:
+                return self.source
+            elif key == 1:
+                return self.text
+            elif key == 2:
+                return self.score
+            raise IndexError(f"Hit index out of range: {key}")
         if key == "source":
             return self.source
         if hasattr(self, key):
@@ -91,6 +102,11 @@ class BaseRetriever(ABC):
         """Search the corpus and return up to k ranked Hit objects."""
         pass
 
+    @property
+    def chunks(self) -> list[tuple[str, str]]:
+        """List of (source/doc, text) pairs for quote verification across corpus."""
+        return []
+
 
 # ====================================================================== S1: Plain Chunks
 class PlainChunks(BaseRetriever):
@@ -107,7 +123,7 @@ class PlainChunks(BaseRetriever):
         pages: list[dict] | None = None,
     ):
         self.chunk_words = chunk_words
-        self.chunks = []
+        self._chunk_objs = []
         raw_pages = pages if pages is not None else load_pages(corpus_dir)
 
         by_doc = defaultdict(list)
@@ -129,8 +145,8 @@ class PlainChunks(BaseRetriever):
                     buf_words += para_len
 
                     if buf_words >= self.chunk_words:
-                        self.chunks.append({
-                            "id": f"{doc}#{len(self.chunks) + 1}",
+                        self._chunk_objs.append({
+                            "id": f"{doc}#{len(self._chunk_objs) + 1}",
                             "doc": doc,
                             "pages": sorted(list(buf_pages)),
                             "section": curr_section,
@@ -142,21 +158,25 @@ class PlainChunks(BaseRetriever):
                         buf_words = len(buf_paras[0].split()) if buf_paras else 0
 
             if buf_paras:
-                self.chunks.append({
-                    "id": f"{doc}#{len(self.chunks) + 1}",
+                self._chunk_objs.append({
+                    "id": f"{doc}#{len(self._chunk_objs) + 1}",
                     "doc": doc,
                     "pages": sorted(list(buf_pages)),
                     "section": curr_section,
                     "text": "\n\n".join(buf_paras),
                 })
 
-        self.bm25 = BM25([c["text"] for c in self.chunks])
+        self.bm25 = BM25([c["text"] for c in self._chunk_objs])
+
+    @property
+    def chunks(self) -> list[tuple[str, str]]:
+        return [(c["doc"], c["text"]) for c in self._chunk_objs]
 
     def search(self, query: str, k: int = 5) -> list[Hit]:
         matches = self.bm25.top(query, k=k)
         hits = []
         for idx, score in matches:
-            c = self.chunks[idx]
+            c = self._chunk_objs[idx]
             hits.append(
                 Hit(
                     id=c["id"],
@@ -332,6 +352,13 @@ class ClaimsDB(BaseRetriever):
 
         self.db.commit()
 
+    @property
+    def chunks(self) -> list[tuple[str, str]]:
+        rows = self.db.execute(
+            "SELECT c.doc, c.claim || ' ' || COALESCE(e.text, '') FROM claims c LEFT JOIN evidence e ON c.claim_id = e.claim_id"
+        ).fetchall()
+        return [(r[0], r[1]) for r in rows]
+
     def _query_entities(self, query: str) -> list[int]:
         toks = tokenize(query)
         if not toks:
@@ -486,6 +513,14 @@ class ClaimGraph(BaseRetriever):
 
         self.bm25 = BM25(corpus_texts)
 
+    @property
+    def chunks(self) -> list[tuple[str, str]]:
+        out = []
+        for r in self.claims.values():
+            ev = " ".join(e.get("text", "") for e in r.get("evidence", []))
+            out.append((r.get("doc", ""), f"{r.get('claim', '')} {ev}"))
+        return out
+
     def _format_claim(self, r: dict) -> str:
         ctype = r.get("type", "claim").upper()
         res = f"[{ctype}] {r.get('claim', '')}"
@@ -571,3 +606,48 @@ class ClaimGraph(BaseRetriever):
                 break
 
         return hits
+
+
+# ====================================================================== Factory
+def get_retriever(
+    name: str = "s1",
+    corpus_dir: Path | str | None = None,
+    chunk_words: int = 180,
+    claims_path: Path | str | None = None,
+) -> BaseRetriever:
+    """Instantiate a retriever by name ('s1', 's2', 's3') with automatic claim resolution."""
+    mode = str(name).lower().strip()
+
+    if "s2" in mode or "relational" in mode:
+        candidates = [
+            Path(claims_path) if claims_path else None,
+            DATA_DIR / "claims.jsonl",
+            DATA_DIR / "real_claims.jsonl",
+            DATA_DIR / "test_claims.jsonl",
+        ]
+        chosen = next((p for p in candidates if p and p.exists() and p.stat().st_size > 0), None)
+        if chosen:
+            return ClaimsDB(claims_file=chosen)
+        raise FileNotFoundError(
+            "System 2 (ClaimsDB) requires a claims database. None found in chunklab/data/. "
+            "Please run: python chunklab/extract_claims.py"
+        )
+
+    if "s3" in mode or "graph" in mode:
+        candidates = [
+            Path(claims_path) if claims_path else None,
+            DATA_DIR / "claims.jsonl",
+            DATA_DIR / "real_claims.jsonl",
+            DATA_DIR / "test_claims.jsonl",
+        ]
+        chosen = next((p for p in candidates if p and p.exists() and p.stat().st_size > 0), None)
+        if chosen:
+            return ClaimGraph(claims_file=chosen)
+        raise FileNotFoundError(
+            "System 3 (ClaimGraph) requires a claims database. None found in chunklab/data/. "
+            "Please run: python chunklab/extract_claims.py"
+        )
+
+    # Default to S1 Plain Chunks
+    return PlainChunks(corpus_dir=corpus_dir, chunk_words=chunk_words)
+
