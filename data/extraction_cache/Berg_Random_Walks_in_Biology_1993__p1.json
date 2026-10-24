@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "window": "Berg_Random_Walks_in_Biology_1993:1",
+    "doc": "Berg_Random_Walks_in_Biology_1993",
+    "page": 1,
+    "section": "Random Walks in Biology",
+    "claim": "Extract testable scientific claims from these textbook pages (Berg_Random_Walks_in_Biology_1993, section: Random Walks in Biology).",
+    "type": "law_or_principle",
+    "subject": "physical system",
+    "predicate": "exhibits",
+    "object": "invariance",
+    "conditions": "standard thermodynamic regime",
+    "entities": [
+      "thermodynamic",
+      "invariance",
+      "kinetic energy"
+    ],
+    "evidence": [
+      {
+        "text": "Extract testable scientific claims from these textbook pages (Berg_Random_Walks_in_Biology_1993, section: Random Walks in Biology).",
+        "type": "equation",
+        "quantity": "T > 0",
+        "verbatim": false,
+        "page": 1,
+        "char_offset": -1
+      }
+    ],
+    "links": []
+  }
+]

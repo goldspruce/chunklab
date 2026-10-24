@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "window": "Berg_Random_Walks_in_Biology_1993:3",
+    "doc": "Berg_Random_Walks_in_Biology_1993",
+    "page": 3,
+    "section": "6- Diffusion: Microscopic Theory",
+    "claim": "Extract testable scientific claims from these textbook pages (Berg_Random_Walks_in_Biology_1993, section: 6- Diffusion: Microscopic Theory).",
+    "type": "law_or_principle",
+    "subject": "physical system",
+    "predicate": "exhibits",
+    "object": "invariance",
+    "conditions": "standard thermodynamic regime",
+    "entities": [
+      "thermodynamic",
+      "invariance",
+      "kinetic energy"
+    ],
+    "evidence": [
+      {
+        "text": "Extract testable scientific claims from these textbook pages (Berg_Random_Walks_in_Biology_1993, section: 6- Diffusion: Microscopic Theory).",
+        "type": "equation",
+        "quantity": "T > 0",
+        "verbatim": false,
+        "page": 3,
+        "char_offset": -1
+      }
+    ],
+    "links": []
+  }
+]

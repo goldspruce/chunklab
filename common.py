@@ -11,6 +11,25 @@ DATA_DIR = ROOT / "data"
 CORPUS_DIR = PARENT_ROOT / "corpus"
 DATA_DIR.mkdir(exist_ok=True)
 
+
+def _load_dotenv():
+    """Load .env from parent or root workspace directory."""
+    for env_path in [ROOT / ".env", PARENT_ROOT / ".env"]:
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"").split("#")[0].strip()
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+
+
+_load_dotenv()
+
 STOPWORDS = set(
     "a an the and or but if because as what when where how all any both each few more most "
     "other some such no nor not only own same so than too very can will just should now "
