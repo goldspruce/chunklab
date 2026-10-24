@@ -410,10 +410,12 @@ def main():
     parser.add_argument("--corpus", default=str(CORPUS_DIR), help="Directory of corpus text files")
     parser.add_argument("--out", default=str(OUT_FILE), help="Output jsonl file")
     parser.add_argument("--doc", default=None, help="Filter to specific document name")
+    parser.add_argument("--pages", default=None, help="Page range filter, e.g. '100-110'")
     parser.add_argument("--windows", type=int, default=None, help="Limit number of windows to process")
     parser.add_argument("--backend", default="gemini", choices=["gemini", "anthropic", "mock"])
     parser.add_argument("--workers", type=int, default=4, help="Parallel extraction workers")
     parser.add_argument("--no-cache", action="store_true", help="Bypass extraction cache")
+    parser.add_argument("--append", action="store_true", help="Append to existing output file instead of overwriting")
     args = parser.parse_args()
 
     print(f"[*] Loading pages from: {args.corpus}")
@@ -423,6 +425,15 @@ def main():
         print(f"  -> Filtered to document '{args.doc}': {len(all_pages)} pages found.")
     else:
         print(f"  -> Loaded total {len(all_pages)} pages across textbooks.")
+
+    if args.pages:
+        try:
+            parts = [int(x.strip()) for x in args.pages.split("-")]
+            p_min, p_max = parts[0], parts[1] if len(parts) > 1 else parts[0]
+            all_pages = [p for p in all_pages if p_min <= p["page"] <= p_max]
+            print(f"  -> Filtered to page range {p_min}-{p_max}: {len(all_pages)} pages remaining.")
+        except Exception as e:
+            print(f"  [!] Invalid page range: {args.pages} ({e})")
 
     windows = make_windows(all_pages)
     if args.windows:
@@ -452,8 +463,13 @@ def main():
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with out_path.open("w", encoding="utf-8") as f:
-        gid = 1
+    mode = "a" if args.append else "w"
+    existing_gids = 0
+    if args.append and out_path.exists():
+        existing_gids = len(out_path.read_text(encoding="utf-8").splitlines())
+
+    with out_path.open(mode, encoding="utf-8") as f:
+        gid = existing_gids + 1
         for rows in all_results:
             for r in rows:
                 r["gid"] = gid

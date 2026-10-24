@@ -2,5 +2,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 data/*.sqlite
+data/extraction_cache/
 results/
 .DS_Store

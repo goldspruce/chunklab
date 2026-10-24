@@ -246,6 +246,109 @@ CREATE INDEX IF NOT EXISTS idx_ev_claim ON evidence(claim_id);
 """
 
 
+# ====================================================================== JIT Manager
+class JITManager:
+    """Just-In-Time claim extractor that monitors queries, identifies missing textbook pages,
+    and extracts claims on-the-fly to populate the local database.
+    """
+
+    def __init__(
+        self,
+        corpus_dir: Path | str | None = None,
+        claims_file: Path | str | None = None,
+        llm: Any = None,
+    ):
+        self.corpus_dir = Path(corpus_dir) if corpus_dir else CORPUS_DIR
+        self.claims_file = Path(claims_file) if claims_file else DATA_DIR / "claims.jsonl"
+        self._llm = llm
+        self._s1: PlainChunks | None = None
+        self._pages: list[dict] | None = None
+
+    def get_llm(self) -> Any:
+        if self._llm is None:
+            try:
+                from .extract_claims import GeminiExtractorLLM
+                self._llm = GeminiExtractorLLM()
+            except Exception:
+                try:
+                    from extract_claims import GeminiExtractorLLM
+                    self._llm = GeminiExtractorLLM()
+                except Exception:
+                    self._llm = None
+        return self._llm
+
+    def find_missing_pages(
+        self,
+        query: str,
+        indexed_pages: set[tuple[str, int]],
+        max_candidates: int = 2,
+    ) -> list[dict]:
+        """Find the top textbook pages matching query that have not yet been extracted."""
+        if self._s1 is None:
+            self._pages = load_pages(self.corpus_dir)
+            self._s1 = PlainChunks(pages=self._pages)
+
+        hits = self._s1.search(query, k=6)
+        candidates = []
+        seen = set()
+
+        for h in hits:
+            for p_num in h.pages:
+                key = (h.doc, int(p_num))
+                if key not in indexed_pages and key not in seen:
+                    p_obj = next((p for p in self._pages if p["doc"] == h.doc and p["page"] == p_num), None)
+                    if p_obj:
+                        candidates.append(p_obj)
+                        seen.add(key)
+                        if len(candidates) >= max_candidates:
+                            return candidates
+        return candidates
+
+    def extract_and_persist(self, pages: list[dict], log=print) -> list[dict]:
+        """Extract claims from pages on the fly, append to claims.jsonl, and return new claims."""
+        if not pages:
+            return []
+
+        llm = self.get_llm()
+        if not llm:
+            return []
+
+        try:
+            from .extract_claims import process_window, make_windows
+        except ImportError:
+            from extract_claims import process_window, make_windows
+
+        windows = make_windows(pages, window_size=2)
+        new_claims = []
+
+        for win in windows:
+            doc = win[0]["doc"]
+            p_start = win[0]["page"]
+            log(f"⚡ [JIT Auto-Extract] Extracting claims on-the-fly for {doc} (p. {p_start})...")
+            try:
+                extracted = process_window(win, llm=llm, cache=True)
+                new_claims.extend(extracted)
+            except Exception as e:
+                log(f"  [!] JIT extraction failed for {doc}: {e}")
+
+        if new_claims:
+            existing_lines = 0
+            if self.claims_file.exists():
+                try:
+                    existing_lines = len(self.claims_file.read_text(encoding="utf-8").splitlines())
+                except Exception:
+                    existing_lines = 0
+
+            self.claims_file.parent.mkdir(parents=True, exist_ok=True)
+            with self.claims_file.open("a", encoding="utf-8") as f:
+                for i, c in enumerate(new_claims):
+                    c["gid"] = existing_lines + i + 1
+                    f.write(json.dumps(c) + "\n")
+            log(f"⚡ [JIT Complete] Saved {len(new_claims)} new claims locally to {self.claims_file.name}!")
+
+        return new_claims
+
+
 class ClaimsDB(BaseRetriever):
     """System 2: Relational SQLite database with FTS5 search.
     Scores claims via full-text search, boosts by entity overlap, and joins out to evidence rows.
@@ -258,7 +361,14 @@ class ClaimsDB(BaseRetriever):
         db_path: Path | str | None = None,
         claims: list[dict] | None = None,
         claims_file: Path | str | None = None,
+        auto_jit: bool = True,
+        corpus_dir: Path | str | None = None,
     ):
+        self.auto_jit = auto_jit
+        self.corpus_dir = Path(corpus_dir) if corpus_dir else CORPUS_DIR
+        self.claims_file = Path(claims_file) if claims_file else (DATA_DIR / "claims.jsonl")
+        self.jit = JITManager(corpus_dir=self.corpus_dir, claims_file=self.claims_file) if auto_jit else None
+
         if db_path is None or str(db_path) == ":memory:":
             self.db = sqlite3.connect(":memory:")
         else:
@@ -271,8 +381,8 @@ class ClaimsDB(BaseRetriever):
         rows = []
         if claims is not None:
             rows = claims
-        elif claims_file is not None and Path(claims_file).exists():
-            rows = [json.loads(line) for line in Path(claims_file).read_text(encoding="utf-8").splitlines() if line.strip()]
+        elif self.claims_file.exists():
+            rows = [json.loads(line) for line in self.claims_file.read_text(encoding="utf-8").splitlines() if line.strip()]
 
         if rows:
             self._ingest_claims(rows)
@@ -369,7 +479,7 @@ class ClaimsDB(BaseRetriever):
         )
         return [row[0] for row in cursor.fetchall()]
 
-    def search(self, query: str, k: int = 5) -> list[Hit]:
+    def _do_search(self, query: str, k: int = 5) -> list[Hit]:
         toks = tokenize(query)
         if not toks:
             return []
@@ -432,6 +542,22 @@ class ClaimsDB(BaseRetriever):
 
         return hits
 
+    def search(self, query: str, k: int = 5) -> list[Hit]:
+        hits = self._do_search(query, k)
+        should_jit = (len(hits) < k) or (not hits) or (hits and hits[0].score < 2.5)
+        if should_jit and self.jit:
+            try:
+                indexed_pages = set(self.db.execute("SELECT DISTINCT doc, page FROM claims").fetchall())
+                missing = self.jit.find_missing_pages(query, indexed_pages, max_candidates=2)
+                if missing:
+                    new_claims = self.jit.extract_and_persist(missing)
+                    if new_claims:
+                        self._ingest_claims(new_claims)
+                        hits = self._do_search(query, k)
+            except Exception:
+                pass
+        return hits
+
 
 # ====================================================================== S3: Claim Graph
 class ClaimGraph(BaseRetriever):
@@ -458,12 +584,19 @@ class ClaimGraph(BaseRetriever):
         self,
         claims: list[dict] | None = None,
         claims_file: Path | str | None = None,
+        auto_jit: bool = True,
+        corpus_dir: Path | str | None = None,
     ):
+        self.auto_jit = auto_jit
+        self.corpus_dir = Path(corpus_dir) if corpus_dir else CORPUS_DIR
+        self.claims_file = Path(claims_file) if claims_file else (DATA_DIR / "claims.jsonl")
+        self.jit = JITManager(corpus_dir=self.corpus_dir, claims_file=self.claims_file) if auto_jit else None
+
         rows = []
         if claims is not None:
             rows = claims
-        elif claims_file is not None and Path(claims_file).exists():
-            rows = [json.loads(line) for line in Path(claims_file).read_text(encoding="utf-8").splitlines() if line.strip()]
+        elif self.claims_file.exists():
+            rows = [json.loads(line) for line in self.claims_file.read_text(encoding="utf-8").splitlines() if line.strip()]
 
         for i, r in enumerate(rows):
             r["gid"] = r.get("gid", i + 1)
@@ -513,6 +646,53 @@ class ClaimGraph(BaseRetriever):
 
         self.bm25 = BM25(corpus_texts)
 
+    def _add_claims_to_graph(self, new_rows: list[dict]):
+        if not new_rows:
+            return
+        start_gid = max(self.claims.keys(), default=0) + 1
+        for i, r in enumerate(new_rows):
+            r["gid"] = r.get("gid", start_gid + i)
+            self.claims[r["gid"]] = r
+
+        key = {(r.get("window", ""), r["id"]): r["gid"] for r in new_rows if "id" in r}
+        for r in new_rows:
+            g = r["gid"]
+            for link in r.get("links", []):
+                target = link.get("target")
+                tgt_gid = key.get((r.get("window", ""), target)) if isinstance(target, int) else None
+                if tgt_gid is not None and tgt_gid != g:
+                    rel = link.get("relation", "supports")
+                    self.adj[g].append((tgt_gid, rel))
+                    self.adj[tgt_gid].append((g, rel))
+
+        by_ent = defaultdict(set)
+        for r in self.claims.values():
+            for ent in r.get("entities", []):
+                normed = norm_entity(ent)
+                if normed:
+                    by_ent[normed].add(r["gid"])
+
+        for ent, gids in by_ent.items():
+            if 2 <= len(gids) <= 12:
+                gid_list = list(gids)
+                for i in range(len(gid_list)):
+                    for j in range(i + 1, len(gid_list)):
+                        a, b = gid_list[i], gid_list[j]
+                        if (b, "entity") not in self.adj[a]:
+                            self.adj[a].append((b, "entity"))
+                            self.adj[b].append((a, "entity"))
+
+        corpus_texts = []
+        self.gid_order = []
+        for gid, r in self.claims.items():
+            ev_str = " ".join(ev.get("text", "") for ev in r.get("evidence", []))
+            ent_str = " ".join(r.get("entities", []))
+            full_text = f"{r.get('claim', '')} {r.get('subject', '')} {r.get('object', '')} {ent_str} {ev_str}"
+            corpus_texts.append(full_text)
+            self.gid_order.append(gid)
+
+        self.bm25 = BM25(corpus_texts)
+
     @property
     def chunks(self) -> list[tuple[str, str]]:
         out = []
@@ -533,7 +713,7 @@ class ClaimGraph(BaseRetriever):
             res += f"\n    • EVIDENCE [{etype}]{q}: {ev.get('text', '')}"
         return res
 
-    def search(self, query: str, k: int = 5) -> list[Hit]:
+    def _do_search(self, query: str, k: int = 5) -> list[Hit]:
         matches = self.bm25.top(query, k=20)
         if not matches:
             return []
@@ -607,6 +787,22 @@ class ClaimGraph(BaseRetriever):
 
         return hits
 
+    def search(self, query: str, k: int = 5) -> list[Hit]:
+        hits = self._do_search(query, k)
+        should_jit = (len(hits) < k) or (not hits) or (hits and hits[0].score < 0.5)
+        if should_jit and self.jit:
+            try:
+                indexed_pages = {(r.get("doc", ""), int(r.get("page", 1))) for r in self.claims.values()}
+                missing = self.jit.find_missing_pages(query, indexed_pages, max_candidates=2)
+                if missing:
+                    new_claims = self.jit.extract_and_persist(missing)
+                    if new_claims:
+                        self._add_claims_to_graph(new_claims)
+                        hits = self._do_search(query, k)
+            except Exception:
+                pass
+        return hits
+
 
 # ====================================================================== Factory
 def get_retriever(
@@ -614,6 +810,7 @@ def get_retriever(
     corpus_dir: Path | str | None = None,
     chunk_words: int = 180,
     claims_path: Path | str | None = None,
+    auto_jit: bool = True,
 ) -> BaseRetriever:
     """Instantiate a retriever by name ('s1', 's2', 's3') with automatic claim resolution."""
     mode = str(name).lower().strip()
@@ -627,7 +824,13 @@ def get_retriever(
         ]
         chosen = next((p for p in candidates if p and p.exists() and p.stat().st_size > 0), None)
         if chosen:
-            return ClaimsDB(claims_file=chosen)
+            return ClaimsDB(claims_file=chosen, auto_jit=auto_jit, corpus_dir=corpus_dir)
+        target_file = Path(claims_path) if claims_path else (DATA_DIR / "claims.jsonl")
+        if auto_jit:
+            target_file.parent.mkdir(parents=True, exist_ok=True)
+            if not target_file.exists():
+                target_file.touch()
+            return ClaimsDB(claims_file=target_file, auto_jit=True, corpus_dir=corpus_dir)
         raise FileNotFoundError(
             "System 2 (ClaimsDB) requires a claims database. None found in chunklab/data/. "
             "Please run: python chunklab/extract_claims.py"
@@ -642,7 +845,13 @@ def get_retriever(
         ]
         chosen = next((p for p in candidates if p and p.exists() and p.stat().st_size > 0), None)
         if chosen:
-            return ClaimGraph(claims_file=chosen)
+            return ClaimGraph(claims_file=chosen, auto_jit=auto_jit, corpus_dir=corpus_dir)
+        target_file = Path(claims_path) if claims_path else (DATA_DIR / "claims.jsonl")
+        if auto_jit:
+            target_file.parent.mkdir(parents=True, exist_ok=True)
+            if not target_file.exists():
+                target_file.touch()
+            return ClaimGraph(claims_file=target_file, auto_jit=True, corpus_dir=corpus_dir)
         raise FileNotFoundError(
             "System 3 (ClaimGraph) requires a claims database. None found in chunklab/data/. "
             "Please run: python chunklab/extract_claims.py"
