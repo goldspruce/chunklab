@@ -42,7 +42,7 @@ class NoRetrieval(BaseRetriever):
         return []
 
 
-def get_system_map(claims_file: Path | str | None = None) -> dict[str, Any]:
+def get_system_map(claims_file: Path | str | None = None, auto_jit: bool = False) -> dict[str, Any]:
     c_file = claims_file
     if not c_file:
         for p in [DATA_DIR / "claims.jsonl", DATA_DIR / "real_claims.jsonl", DATA_DIR / "test_claims.jsonl"]:
@@ -53,8 +53,8 @@ def get_system_map(claims_file: Path | str | None = None) -> dict[str, Any]:
     return {
         "S0_none": lambda: NoRetrieval(),
         "S1_plain": lambda: PlainChunks(),
-        "S2_relational": lambda: ClaimsDB(claims_file=c_file),
-        "S3_graph": lambda: ClaimGraph(claims_file=c_file),
+        "S2_relational": lambda: ClaimsDB(claims_file=c_file, auto_jit=auto_jit),
+        "S3_graph": lambda: ClaimGraph(claims_file=c_file, auto_jit=auto_jit),
     }
 
 
@@ -207,6 +207,7 @@ def main():
     parser.add_argument("--eval", default=str(EVAL_FILE), help="Path to eval.jsonl")
     parser.add_argument("--backend", default="mock", choices=["gemini", "anthropic", "mock"])
     parser.add_argument("--claims", default=None, help="Path to claims.jsonl file for S2 and S3")
+    parser.add_argument("--jit", action="store_true", help="Enable Just-In-Time extraction during evaluation")
     parser.add_argument("--out", default=None, help="Output results directory")
     args = parser.parse_args()
 
@@ -230,7 +231,7 @@ def main():
     out_dir = Path(args.out) if args.out else RESULTS_DIR / timestamp
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    system_factories = get_system_map(args.claims)
+    system_factories = get_system_map(args.claims, auto_jit=args.jit)
     all_results = []
 
     print(f"[*] Starting benchmark evaluation (Budget: {args.budget} words)...")
