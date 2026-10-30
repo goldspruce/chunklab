@@ -1,156 +1,94 @@
-# 🔬 ScholarQABench Citation Hallucination Bake-Off: Complete Results & Analysis
+# 🔬 ScholarQABench Citation Hallucination Bake-Off: Complete 10-Query Results & Analysis
 
 > **Evaluation Suite**: Path A — ScholarQABench Citation Veracity & Grounding Bake-Off  
 > **Benchmark Corpus**: 12,320 Canonical Textbook Chunks across Physics, Biophysics, Neurophysiology, Biochemistry, and Information Theory  
+> **Queries Evaluated**: 10 Expert Mechanism Queries (2 per foundational science)  
 > **Systems Evaluated**: `Raw_Frontier_LLM` (Parametric Gemini 3.8 Flash), `S2_relational`, `S3_graph`, `S_cached` (Long-Context Cached Gemini 3.8 Flash)  
 > **Deterministic Verification**: Exact character-offset quote verification (`verify_quote()`) + LLM claim-quote entailment verification (`auto_entail()`)
 
 ---
 
-## 1. Executive Summary & The Scorecard
+## 1. Executive Summary & The 10-Query Scorecard
 
-In scientific RAG, the primary failure mode is **citation hallucination** and **citation bluffing**:
-- **Citation Hallucination**: An LLM fabricates or alters quotes and paper references that do not exist verbatim in the source literature.
-- **Citation Bluffing**: An LLM cites an authentic source or quote, but the cited text fails to logically entail the asserted factual claim.
+In scientific literature synthesis, commercial frontier models routinely hallucinate citations and commit citation bluffing. To test this under the Allen Institute for AI auditing standard, we ran a **10-query cross-disciplinary gauntlet** evaluating **51 total citations** against all 12,320 textbook chunks on disk.
 
-To quantify this, we ran the **Path A: ScholarQABench Citation Bake-Off** across 5 expert-level queries spanning 5 domains, comparing pure parametric generation against Sanity Engine's retrieval architectures and long-context cached prompting.
-
-### The Path A Scorecard
+### The 10-Query ScholarQABench Scorecard
 
 | System | Total Citations | Veracity Rate (% Real) | Hallucination Rate (% Fake) | Entailment Rate (% Sound) | Bluffing Rate (% Irrelevant) | Avg Context Words | Avg Latency |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **`Raw_Frontier_LLM`** | 9 | **0.0%** | **100.0%** | 0.0% | 0.0% | 0w | 1.7s |
-| **`S2_relational`** | 5 | **80.0%** | **20.0%** | 80.0% | 0.0% | 715w | 8.7s |
-| **`S3_graph`** | 5 | **60.0%** | **40.0%** | 60.0% | 0.0% | 841w | 1.5s |
-| **`S_cached`** | 9 | **44.4%** | **55.6%** | 33.3% | 11.1% | 22,832w | 3.7s |
+| **`Raw_Frontier_LLM`** | 18 | **0.0%** | **100.0%** | 0.0% | 0.0% | 0w | 8.7s |
+| **`S2_relational`** | 8 | **37.5%** | **62.5%** | 37.5% | **0.0%** | 886w | 2.1s |
+| **`S3_graph`** | 8 | **62.5%** | **37.5%** | 62.5% | **0.0%** | 967w | 5.4s |
+| **`S_cached`** | 17 | **41.2%** | **58.8%** | 35.3% | **5.9%** | 26,904w | 4.1s |
 
 ---
 
-## 2. Key Findings
+## 2. Key Insights from the 10-Query Suite
 
 ```mermaid
 flowchart TD
     subgraph Raw_LLM ["Raw Frontier LLM (Parametric)"]
-        R1["Generates 9 Citations"] --> R2["0% Real Quotes (100% Hallucinated)"]
-        R2 --> R3["Plausible sounding authors, titles, & math"]
-        R3 --> R4["Zero character offset matches on disk"]
+        R1["Generates 18 Citations"] --> R2["0% Real Quotes (18 of 18 Fake)"]
+        R2 --> R3["100.0% Citation Hallucination Rate"]
+        R3 --> R4["Zero character offset matches across 12,320 pages"]
     end
 
-    subgraph Cached ["S_cached (Long-Context 23k words)"]
-        C1["Generates 9 Citations"] --> C2["44.4% Exact Verbatim Quotes"]
-        C2 --> C3["55.6% Paraphrased / Altered Quotes"]
-        C3 --> C4["11.1% Citation Bluffing (Irrelevant/Contradictory)"]
+    subgraph Cached ["S_cached (Long-Context ~27k words)"]
+        C1["Generates 17 Citations"] --> C2["41.2% Verbatim Quotes"]
+        C2 --> C3["58.8% Paraphrased / Altered Quotes"]
+        C3 --> C4["5.9% Citation Bluffing"]
     end
 
     subgraph Sanity_Engines ["Sanity Engine (S2 & S3)"]
-        S1["Retrieves Targeted Chunks (~750w)"] --> S2["60%–80% Exact Verbatim Quotes"]
-        S2 --> S3["0% Citation Bluffing"]
+        S1["Retrieves Targeted Chunks (~900w)"] --> S2["Up to 62.5% Verbatim Grounding"]
+        S2 --> S3["0.0% Citation Bluffing (Sound Attribution)"]
         S3 --> S4["Deterministic quote snapping to disk offsets"]
     end
 ```
 
-### 1. Raw Frontier LLMs Suffer 100% Citation Hallucination
-When prompted to produce academic claims backed by exact citations and verbatim quotes, **Gemini 3.8 Flash failed on 9 out of 9 citations (100% hallucination rate)**. 
-- The generated quotes sounded authoritative, fluent, and technically accurate (e.g., citing *Kinsler et al., Fundamentals of Acoustics* or *Pathria & Beale, Statistical Mechanics*).
-- However, **none of these quotes existed verbatim in the canonical literature**. The model synthesized plausible quotes from its parametric memory, demonstrating why ungrounded LLMs cannot be trusted for academic attribution.
+### 1. The 100% Parametric Hallucination Baseline
+Across 10 diverse queries, **`Raw_Frontier_LLM` emitted 18 citations and fabricated 100% of them**:
+- It cited authentic textbooks (*Kinsler Acoustics*, *Pathria Statistical Mechanics*, *Purves Neuroscience*, *Jackson Classical Electrodynamics*, *Cornish-Bowden Fundamentals of Enzyme Kinetics*).
+- However, **not a single quote existed verbatim in the literature**. Every quote was synthesized on the fly from parametric memory.
 
-### 2. Context Caching Does Not Solve Citation Hallucination (55.6% Failure)
-Feeding entire textbook sections (~22,832 words per query) into $S_{\text{cached}}$ improved verbatim grounding compared to the raw model (achieving 44.4% veracity), but **55.6% of its citations still failed exact verification**:
-- Even with the text in-context, LLMs have an intrinsic propensity to **summarize, paraphrase, or slightly mutate sentences** rather than reproducing exact character-for-character quotes.
-- $S_{\text{cached}}$ also exhibited **citation bluffing (11.1%)**: in query `SQA_02`, it quoted an equation from Berg (1993) but misattributed the formula $k_1/m$ to root-mean-square velocity instead of mean-square velocity.
+### 2. Sanity Engine's Zero-Bluffing Invariant
+Both $S_2$ and $S_3$ maintained a **0.0% Citation Bluffing Rate**:
+- Every quote verified on disk was **100% logically sound** and directly entailed the claim.
+- $S_3$ achieved **62.5% Veracity Rate** while consuming only **967 context words** per query (a **28× token reduction** compared to long-context caching).
 
-### 3. Sanity Engine Delivers Verifiable Grounding (80% Veracity, 0% Bluffing)
-$S_2$ (Relational DB) achieved an **80.0% verbatim veracity rate** and an **80.0% logical entailment rate** with **0% citation bluffing**:
-- Context size remained compact (~715 words), reducing hallucination surface area by **32×** compared to cached long context.
-- Citations produced by $S_2$ and $S_3$ snap deterministically to source chunk IDs (`c2`, `c66`) and page numbers, enabling instant cryptographic or offset verification.
-
----
-
-## 3. Query-by-Query Deep Dive & Concrete Examples
-
-### Query `SQA_01` (Physics / Wave Mechanics)
-> *"How does the characteristic acoustic impedance mismatch between two media govern boundary reflection and transmission of acoustic power?"*
-
-* **`Raw_Frontier_LLM`**:
-  * *Claim*: Pressure reflection coefficient depends on impedance difference divided by sum.
-  * *Hallucinated Quote*: `"The pressure reflection coefficient R is given by R = (z2 - z1) / (z2 + z1)..."`
-  * *Hallucinated Source*: *Kinsler, L. E. et al. (2000). Fundamentals of Acoustics.*
-  * *Veracity Gate*: **FAILED (0 matches across 12,320 chunks)**.
-* **`S_cached`**:
-  * Attempted to quote Feynman Vol 1 on adiabatic sound speed, but paraphrased the text:
-  * *Veracity Gate*: **FAILED (Paraphrased text rather than exact quote)**.
-* **`S2_relational` / `S3_graph`**:
-  * Recognized insufficient explicit acoustic impedance boundary claims in the local sample index and refrained from hallucinating false citations.
+### 3. Long-Context Paraphrase Penalty
+Even when $S_{\text{cached}}$ was fed ~26,904 words per query, **58.8% of its citations failed exact verification**:
+- LLMs inherently reword, contract, or adjust phrasing rather than copying character-for-character.
+- $S_{\text{cached}}$ also exhibited **5.9% Citation Bluffing**, misattributing equations in biophysics.
 
 ---
 
-### Query `SQA_02` (Biophysics / Equipartition Theorem)
-> *"According to equipartition theory, what is the thermal kinetic energy per spatial degree of freedom for microscopic particles in aqueous suspension, and how does thermal velocity scale with temperature?"*
+## 3. Query Breakdown (All 10 Queries)
 
-* **`Raw_Frontier_LLM`**:
-  * Cited Pathria & Beale (2011) and Atkins Physical Chemistry (2014) with fabricated quotes.
-  * *Veracity Gate*: **FAILED (100% Hallucination)**.
-* **`S2_relational`**:
-  * *Claim*: Average kinetic energy per spatial degree of freedom is $kT/2$.
-  * *Verbatim Quote*: `"A particle at absolute temperature T has, on the average, a kinetic energy associated with movement along each axis of kT/2, where k is Boltzmann's constant."`
-  * *Source*: Howard Berg, *Random Walks in Biology (1993)*, p. 2 (Chunk `c2`).
-  * *Veracity Gate*: **VERIFIED (Exact disk match, 100% Entailed)**.
-* **`S_cached`**:
-  * Successfully quoted Berg for $kT/2$, but bluffed on the second citation by conflating mean-square and root-mean-square derivations.
-
----
-
-### Query `SQA_03` (Neurophysiology / Resting Membrane Potential)
-> *"What specific ionic permeability mechanisms establish the resting membrane potential in neuronal cells?"*
-
-* **`Raw_Frontier_LLM`**:
-  * Fabricated quotes from Kandel *Principles of Neural Science* and Purves *Neuroscience*.
-  * *Veracity Gate*: **FAILED**.
-* **`S2_relational`**:
-  * Generated 3 citations from Johnston & Wu and Alberts:
-  * Quote 1: `"However, switch-ing off the pump does not abolish the major component of the resting potential, which is generated by the K+ equilibrium mechanism just described."` -> **VERIFIED**.
-  * Quote 2: `"...the more permeable the membrane for a given ion, the more strongly the membrane potential tends to be driven toward the equilibrium value for that ion."` -> **VERIFIED**.
-  * Veracity: **66.7%**, Entailment: **100% of verified quotes**.
-* **`S3_graph`**:
-  * Linked claim graph edges directly to Johnston & Wu (1995) p. 77:
-  * Quote: `"The total membrane current in figure 3.4 can be written as I = lc + IK + INU + Icu"` -> **VERIFIED**.
+| ID | Domain | Reference Work | Citations Tested | Verified Quotes | Key Mechanism Evaluated |
+|:---:|:---|:---|:---:|:---:|:---|
+| **`SQA_01`** | **Physics** | *Feynman Vol. 1* (p. 818) | 2 | $S_{\text{cached}}$: 0, Raw: 0 | Acoustic boundary impedance mismatch |
+| **`SQA_02`** | **Biophysics** | *Berg* (p. 2) | 2 | $S_2$: 2, $S_3$: 2, $S_{\text{cached}}$: 2 | Equipartition energy ($kT/2$) & Brownian velocity |
+| **`SQA_03`** | **Neurophysiology** | *Johnston & Wu* (p. 77) | 4 | $S_3$: 1, $S_{\text{cached}}$: 1 | GHK resting membrane potential equation |
+| **`SQA_04`** | **Biochemistry** | *Lehninger* (p. 503) | 0 | Abstained across engines | ATP hydrolysis free energy coupling |
+| **`SQA_05`** | **Information Theory** | *Cover & Thomas* (p. 244) | 1 | $S_{\text{cached}}$: 1 | Shannon channel capacity $C = \frac{1}{2}\log(1+P/N)$ |
+| **`SQA_06`** | **Physics** | *Feynman Vol. 2* (p. 421) | 2 | Raw: 0, $S_{\text{cached}}$: 0 | Conductor skin depth $\delta = \sqrt{2/\omega\mu\sigma}$ |
+| **`SQA_07`** | **Biophysics** | *Berg* (p. 48) | 1 | Raw: 0, $S_{\text{cached}}$: 0 | Low Reynolds number Stokes drag $f = 6\pi\eta a$ |
+| **`SQA_08`** | **Neurophysiology** | *Alberts* (p. 698) | 3 | $S_2$: 1, $S_3$: 2 | Potassium channel selectivity filter carbonyl oxygens |
+| **`SQA_09`** | **Biochemistry** | *Lehninger* (p. 779) | 1 | $S_{\text{cached}}$: 1 | Briggs-Haldane steady-state $d[ES]/dt \approx 0$ |
+| **`SQA_10`** | **Information Theory** | *Cover & Thomas* (p. 47) | 2 | $S_{\text{cached}}$: 2 | Mutual information identity $I(X; Y) = H(X) - H(X|Y)$ |
 
 ---
 
-### Query `SQA_05` (Information Theory / Shannon Capacity)
-> *"How does the Shannon channel capacity of a communication channel mathematically depend on signal power and noise variance?"*
+## 4. Architectural Comparison
 
-* **`Raw_Frontier_LLM`**:
-  * Fabricated quote from Shannon's 1948 Bell System paper: `"The capacity C of a channel of band W perturbed by white thermal noise power N is given by C = W log(1 + P/N)..."`
-  * *Veracity Gate*: **FAILED**.
-* **`S_cached`**:
-  * Directly cited Cover & Thomas (2006) with verbatim equations from the 26,000-word context window:
-  * Quote: `I(X ;Y) = h(Y) − h(Z) (9.14) ≤ 1/2 log 2πe(P + N) − 1/2 log 2πeN (9.15) = 1/2 log(1 + P/N). (9.16)`
-  * *Veracity Gate*: **VERIFIED (Exact disk match, 100% Entailed)**.
-
----
-
-## 4. Architectural Comparison & Trade-Offs
-
-| Metric | Raw Frontier LLM | Sanity Engine Relational ($S_2$) | Sanity Engine Graph ($S_3$) | Sanity Engine Cached ($S_{\text{cached}}$) |
+| Dimension | `Raw_Frontier_LLM` | `S2_relational` | `S3_graph` | `S_cached` |
 |---|:---:|:---:|:---:|:---:|
-| **Citation Veracity** | 0.0% | **80.0%** | 60.0% | 44.4% |
-| **Citation Bluffing** | N/A (all fake) | **0.0%** | **0.0%** | 11.1% |
-| **Token Consumption** | ~400 tokens | ~900 tokens | ~1,100 tokens | **~29,000 tokens** |
-| **API Cost Ratio** | $1\times$ | $2.2\times$ | $2.5\times$ | **$32.5\times$** |
-| **Query Latency** | 1.7s | 8.7s | **1.5s** | 3.7s |
-| **Traceability** | None (Parametric) | Exact chunk ID (`c2`) | Exact graph node | Page/Window range |
-
----
-
-## 5. Strategic Recommendations
-
-1. **Enforce Quote Snapping on Long Context**:
-   When using long-context cached models ($S_{\text{cached}}$), never trust quotes emitted by the model without a secondary deterministic regex or fuzzy-matcher pass that snaps the quote to the nearest exact character slice in the cached text.
-2. **Combine $S_3$ Graph with JIT Extraction**:
-   $S_3$ provides the lowest latency (1.5s) and structural claim verification. Feeding JIT-extracted claim triples directly to verification yields high veracity while maintaining sub-2-second response times.
-3. **ScholarQABench as Continuous CI**:
-   Run `chunklab/run_scholarqa_bakeoff.py` as a regression test before releasing prompt or retrieval updates to prevent citation drift.
+| **Citation Veracity** | **0.0%** | 37.5% | **62.5%** | 41.2% |
+| **Citation Bluffing** | 0.0% (all fake) | **0.0%** | **0.0%** | **5.9%** |
+| **Context Words** | 0w | 886w | 967w | **26,904w** |
+| **API Cost Multiplier** | $1.0\times$ | $2.2\times$ | $2.5\times$ | **$30.4\times$** |
+| **Average Latency** | 8.7s | **2.1s** | 5.4s | 4.1s |
 
 ---
 *Generated by Sanity Engine Benchmark Suite — ChunkLab (October 2026).*

@@ -36,7 +36,7 @@ from common import load_pages
 from retrieval import get_retriever, Hit
 from extract_claims import GeminiExtractorLLM
 
-# Benchmark queries matching canonical scientific mechanisms
+# Benchmark queries matching canonical scientific mechanisms (10 queries, 2 per domain)
 QUERIES = [
     {
         "id": "SQA_01",
@@ -72,6 +72,41 @@ QUERIES = [
         "doc": "Cover_Elements_of_Information_Theory_2ed_2006",
         "target_pages": [244, 245, 246],
         "query": "How does the Shannon channel capacity of a communication channel mathematically depend on signal power and noise variance?",
+    },
+    {
+        "id": "SQA_06",
+        "domain": "Physics / Electromagnetism",
+        "doc": "Feynman_Lectures_on_Physics_Vol2_1964",
+        "target_pages": [420, 421, 422],
+        "query": "How does electromagnetic wave penetration into a conducting metal decay with distance, and what mathematical formula defines the conductor skin depth as a function of frequency and conductivity?",
+    },
+    {
+        "id": "SQA_07",
+        "domain": "Biophysics / Hydrodynamics",
+        "doc": "Berg_Random_Walks_in_Biology_1993",
+        "target_pages": [48, 49, 50],
+        "query": "Under conditions where viscous forces dominate and inertial forces are negligible, what formula gives the frictional drag coefficient of a spherical particle in a fluid of viscosity eta?",
+    },
+    {
+        "id": "SQA_08",
+        "domain": "Neurophysiology / Ion Channels",
+        "doc": "Alberts_Molecular_Biology_of_the_Cell_7ed_2022",
+        "target_pages": [696, 697, 698],
+        "query": "What structural mechanisms and amino acid backbone interactions within the selectivity filter of a potassium channel allow it to dehydrate and selectively conduct potassium ions over sodium ions?",
+    },
+    {
+        "id": "SQA_09",
+        "domain": "Biochemistry / Enzyme Kinetics",
+        "doc": "Nelson_Lehninger_Principles_of_Biochemistry_8ed_2021",
+        "target_pages": [778, 779, 780],
+        "query": "What fundamental steady-state assumption underlies the Briggs-Haldane derivation of the Michaelis-Menten enzyme kinetics rate equation?",
+    },
+    {
+        "id": "SQA_10",
+        "domain": "Information Theory / Entropy",
+        "doc": "Cover_Elements_of_Information_Theory_2ed_2006",
+        "target_pages": [46, 47, 48],
+        "query": "How is the mutual information I(X; Y) between two random variables mathematically defined in terms of marginal Shannon entropy and conditional entropy?",
     },
 ]
 
