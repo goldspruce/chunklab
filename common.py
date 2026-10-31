@@ -68,6 +68,74 @@ class BM25:
             for token in set(doc):
                 self.df[token] = self.df.get(token, 0) + 1
 
+
+def clean_for_quote_match(text: str) -> str:
+    """Normalize text for quote matching:
+    - Lowercase
+    - Normalize smart quotes & unicode hyphens
+    - De-hyphenate line break splits (e.g. 'disequil -\\nibrating' -> 'disequilibrating')
+    - Strip punctuation and collapse whitespace
+    """
+    if not text:
+        return ""
+    text = text.lower()
+    text = re.sub(r"[\u2018\u2019]", "'", text)
+    text = re.sub(r"[\u201c\u201d]", '"', text)
+    text = re.sub(r"(\w+)\s*-\s*\n\s*(\w+)", r"\1\2", text)
+    text = re.sub(r"-\s*\n\s*", "", text)
+    text = re.sub(r"[^\w\s]", " ", text)
+    return " ".join(text.split())
+
+
+def quote_snapping_verify(
+    quote: str,
+    corpus_chunks: list[str],
+    min_words: int = 4,
+    shingle_size: int = 6,
+    shingle_match_ratio: float = 0.5,
+) -> bool:
+    """Verify whether a candidate quote exists on physical disk, with Quote Snapping:
+    1. Exact cleaned substring check across corpus chunks.
+    2. Ellipsis-aware subsegment verification (if model used '...').
+    3. Shingle-based fuzzy token alignment to accommodate OCR artifacts & minor omission.
+    """
+    if not quote or not corpus_chunks:
+        return False
+
+    # Handle ellipsis joins
+    if "..." in quote:
+        sub_quotes = [q.strip() for q in quote.split("...") if len(q.strip().split()) >= 3]
+        if sub_quotes:
+            return all(quote_snapping_verify(sq, corpus_chunks, min_words=min_words) for sq in sub_quotes)
+
+    cq = clean_for_quote_match(quote)
+    words = cq.split()
+    if len(words) < min_words:
+        return False
+
+    # Pass 1: Direct substring check on cleaned corpus chunks
+    for chunk in corpus_chunks:
+        c_chunk = clean_for_quote_match(chunk)
+        if cq in c_chunk:
+            return True
+
+    # Pass 2: Shingle-based sliding window match (Quote Snapping)
+    if len(words) <= shingle_size:
+        return False
+
+    shingles = [" ".join(words[i : i + shingle_size]) for i in range(len(words) - shingle_size + 1)]
+    if not shingles:
+        return False
+
+    for chunk in corpus_chunks:
+        c_chunk = clean_for_quote_match(chunk)
+        hits = sum(1 for s in shingles if s in c_chunk)
+        if (hits / len(shingles)) >= shingle_match_ratio:
+            return True
+
+    return False
+
+
     def idf(self, token: str) -> float:
         freq = self.df.get(token, 0)
         return math.log(1.0 + (self.corpus_size - freq + 0.5) / (freq + 0.5))

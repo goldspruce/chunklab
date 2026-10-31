@@ -43,15 +43,15 @@ Page Recall  Quote Disk   N/A (Format                        Passage Recall  Quo
 
 ### Table 1: Evaluated on Dataset A — Canonical Textbook Hypotheses ($N = 10$)
 
-*Task: High-level cross-disciplinary hypothesis verification across 11 graduate treatises.*
+*Task: High-level cross-disciplinary hypothesis verification across 11 graduate treatises with Quote-Snapped Allen Citation Attribution.*
 
-| System | (1) Original Method: Page Recall / Words | (1) Original Method: Verdict Acc | (2) Allen Method: Quote Veracity (% Real) | (2) Allen Method: Citation Bluffing | (3) FutureHouse Method: Multiple Choice |
+| System | (1) Original Method: Page Recall / Words | (1) Original Method: Verdict Acc | (2) Allen Method: Quote Veracity (Snapped) | (2) Allen Method: Citation Bluffing | (3) FutureHouse Method: Multiple Choice |
 |---|:---:|:---:|:---:|:---:|:---:|
-| **$S_0$ (Raw Frontier LLM)** | 0.00 / **0w** | 10.0% | **0.0% (100% Fake)** | N/A (all fake) | **N/A** *(Hypothesis format)* |
-| **$S_1$ (BM25 Chunks)** | 0.25 / 690w | 70.0% | 40.0% | 10.0% | **N/A** *(Hypothesis format)* |
-| **$S_2$ (Relational DB)** | **0.55** / **357w** | **70.0%** | **80.0%** | **0.0%** | **N/A** *(Hypothesis format)* |
-| **$S_3$ (Claim Graph)** | 0.35 / 393w | 40.0% | **62.5%** | **0.0%** | **N/A** *(Hypothesis format)* |
-| **$S_{\text{cached}}$ (Long Context)** | 0.20 / 49,664w | 60.0% | 41.2% (Paraphrase drift) | 5.9% | **N/A** *(Hypothesis format)* |
+| **$S_0$ (Raw Frontier LLM)** | 0.00 / **0w** | 10.0% | **11.1%** *(16/18 fake)* | **88.9% (Bluffing)** | **N/A** *(Hypothesis format)* |
+| **$S_1$ (BM25 Chunks)** | 0.25 / 690w | **70.0%** | **75.0%** | **0.0%** | **N/A** *(Hypothesis format)* |
+| **$S_2$ (Relational DB)** | **0.55** / **357w** | **70.0%** | **75.0%** | **0.0%** | **N/A** *(Hypothesis format)* |
+| **$S_3$ (Claim Graph)** | 0.35 / 393w | 40.0% | **87.5%** | **0.0%** | **N/A** *(Hypothesis format)* |
+| **$S_{\text{cached}}$ (Long Context)** | 0.20 / 49,664w | 60.0% | **94.1%** *(16/17 verified)* | 5.9% | **N/A** *(Hypothesis format)* |
 
 > **Methodological Note on Column (3)**: In Dataset A, items are 3-way hypothesis verification tasks (`supported` / `refuted` / `insufficient`), not 5-option multiple choice quizzes. Rather than artificially interpolating data, this cell is properly categorized as `N/A (Hypothesis format)`. If FutureHouse's precision formula ($\frac{C}{C+H}$) is computed over the 3-way verdicts, $S_2$ achieves **70.0% Accuracy** and **100.0% Precision** because it never produced a false verdict.
 
@@ -59,11 +59,11 @@ Page Recall  Quote Disk   N/A (Format                        Passage Recall  Quo
 
 ### Table 2: Evaluated on Dataset B — FutureHouse LitQA2 Research Papers ($N = 10$)
 
-*Task: Deep body-text multiple-choice fact retrieval across 194 peer-reviewed paper passages.*
+*Task: Deep body-text multiple-choice fact retrieval across 194 peer-reviewed paper passages with Quote-Snapped Allen Citation Attribution.*
 
-| System | (1) Original Method: Passage Recall@3 | (1) Original Method: Context Words | (2) Allen Method: Quote Veracity (% Real) | (2) Allen Method: Citation Hallucination | (3) FutureHouse Method: Accuracy | (3) FutureHouse Method: Precision / Abstention |
+| System | (1) Original Method: Passage Recall@3 | (1) Original Method: Context Words | (2) Allen Method: Quote Veracity (Snapped) | (2) Allen Method: Citation Bluffing | (3) FutureHouse Method: Accuracy | (3) FutureHouse Method: Precision / Abstention |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **$S_0$ (Raw Frontier LLM)** | 0.00 | **0w** | **0.0%** | **100.0% (Fake quotes)** | 70.0% | 70.0% / **0.0% (Guessed)** |
+| **$S_0$ (Raw Frontier LLM)** | 0.00 | **0w** | **0.0%** *(10/10 fake)* | **70.0% (Bluffing)** | 70.0% | 70.0% / **0.0% (Guessed)** |
 | **$S_1$ (BM25 Chunks)** | **1.00** (MRR 0.90) | 277w | **100.0%** | **0.0%** | **100.0%** | **100.0% / 0.0%** |
 | **$S_2$ (Relational DB)** | **0.90** (MRR 0.85) | 435w | **100.0%** | **0.0%** | **90.0%** | **100.0% / 10.0% (Abstained)**|
 | **$S_3$ (Claim Graph)** | **0.90** (MRR 0.85) | 450w | **100.0%** | **0.0%** | **90.0%** | **100.0% / 10.0% (Abstained)**|

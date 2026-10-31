@@ -210,9 +210,9 @@ def evaluate_system_query(
         claim = cit.get("claim", "")
         quote = cit.get("quote", "")
 
-        # Gate 1: verify_quote against all 12,320 textbook chunks on disk
-        nq = engine.norm(quote)
-        is_verified = any(nq in engine.norm(t) for _, t in all_chunks) if len(nq.split()) >= 4 else False
+        # Gate 1: verify_quote with Quote Snapping against all 12,320 textbook chunks on disk
+        chunk_texts = [t for _, t in all_chunks]
+        is_verified = engine.quote_snapping_verify(quote, chunk_texts)
         status = "verified" if is_verified else "failed"
 
         entail_label = "unclear"

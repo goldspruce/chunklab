@@ -33,7 +33,7 @@ if str(ROOT) not in sys.path:
 if str(PARENT_ROOT) not in sys.path:
     sys.path.insert(0, str(PARENT_ROOT))
 
-from common import BM25, tokenize, norm_entity
+from common import BM25, tokenize, quote_snapping_verify, norm_entity
 from extract_claims import GeminiExtractorLLM
 
 import string
@@ -198,6 +198,11 @@ def run_litqa_query(
     is_abstained = (choice == insufficient_letter)
     is_hallucination = (not is_correct) and (not is_abstained)
 
+    raw_quote = str(res.get("verbatim_quote", "")).strip()
+    corpus_texts = [p["text"] for p in corpus]
+    is_quote_verified = quote_snapping_verify(raw_quote, corpus_texts) if raw_quote else False
+    is_bluffing = is_correct and (not is_quote_verified) and bool(raw_quote)
+
     return {
         "system": system_name,
         "item_idx": item["idx"],
@@ -211,7 +216,9 @@ def run_litqa_query(
         "is_abstained": is_abstained,
         "is_hallucination": is_hallucination,
         "reasoning": res.get("reasoning", ""),
-        "verbatim_quote": res.get("verbatim_quote", ""),
+        "verbatim_quote": raw_quote,
+        "is_quote_verified": is_quote_verified,
+        "is_bluffing": is_bluffing,
         "ctx_words": ctx_words,
         "latency_sec": latency,
     }
@@ -290,6 +297,14 @@ def main():
         avg_ctx = sum(r["ctx_words"] for r in sub) / max(n_total, 1)
         avg_lat = sum(r["latency_sec"] for r in sub) / max(n_total, 1)
 
+        quotes_cited = [r for r in sub if bool(r.get("verbatim_quote"))]
+        n_quotes = len(quotes_cited)
+        n_verified = sum(1 for r in quotes_cited if r.get("is_quote_verified"))
+        n_bluffs = sum(1 for r in sub if r.get("is_bluffing"))
+
+        veracity = (n_verified / n_quotes * 100.0) if n_quotes > 0 else 0.0
+        bluff_rate = (n_bluffs / n_total * 100.0) if n_total > 0 else 0.0
+
         scorecard.append({
             "System": sys_name,
             "N": n_total,
@@ -298,6 +313,8 @@ def main():
             "Abstained": n_abstained,
             "Accuracy": f"{accuracy:.1f}%",
             "Precision": f"{precision:.1f}%",
+            "Veracity": f"{veracity:.1f}%",
+            "Bluffing": f"{bluff_rate:.1f}%",
             "Hallucination Rate": f"{hallucination_rate:.1f}%",
             "Abstention Rate": f"{abstention_rate:.1f}%",
             "Avg Ctx Words": f"{int(avg_ctx):,}w",
@@ -307,13 +324,13 @@ def main():
     # Render Markdown Table
     summary_md = RESULTS_DIR / "summary.md"
     md_lines = [
-        "### 📊 Path B: FutureHouse LitQA2 Deep Body-Text Retrieval Scorecard\n",
-        "| System | Total (N) | Correct | Accuracy (%) | Precision (%) | Hallucination Rate (%) | Abstention Rate (%) | Avg Context Words | Avg Latency |",
-        "|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
+        "### 📊 Path B: FutureHouse LitQA2 Deep Body-Text Retrieval Scorecard (With Quote Snapping)\n",
+        "| System | Total (N) | Correct | Accuracy (%) | Precision (%) | Quote Veracity (Snapped) | Citation Bluffing (%) | Abstention Rate (%) | Avg Context Words | Avg Latency |",
+        "|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
     ]
     for row in scorecard:
         md_lines.append(
-            f"| **{row['System']}** | {row['N']} | {row['Correct']} | **{row['Accuracy']}** | **{row['Precision']}** | **{row['Hallucination Rate']}** | {row['Abstention Rate']} | {row['Avg Ctx Words']} | {row['Avg Latency']} |"
+            f"| **{row['System']}** | {row['N']} | {row['Correct']} | **{row['Accuracy']}** | **{row['Precision']}** | **{row['Veracity']}** | **{row['Bluffing']}** | {row['Abstention Rate']} | {row['Avg Ctx Words']} | {row['Avg Latency']} |"
         )
 
     summary_content = "\n".join(md_lines) + "\n"
