@@ -53,7 +53,7 @@ Our cross-benchmark bake-off proves that **no single evaluation method is comple
 | **Cognitive Mode Probed** | Multi-hop deductive synthesis across chapters and books | Verbatim physical attribution and citation honesty | High-resolution needle-in-a-haystack fact discovery |
 | **Query Format** | Natural language hypothesis statement | Open-ended mechanism question | Multiple-choice quiz (Options A–D + "Insufficient info") |
 | **Evaluation Mechanism** | Set intersection on page metadata + semantic coverage judge | In-memory Quote Snapping against physical disk chunks | Deterministic multiple-choice option matching |
-| **Ground-Truth Source** | 11 Canonical Graduate Treatises (12,320 Pages) | 12,320 Textbook chunks + Academic papers | 194 Peer-Reviewed Biology Papers (2022–2024) |
+| **Ground-Truth Source** | 11 Canonical Graduate Treatises (12,320 Pages) | **None from Allen** (Adopted Allen *methodology* only; applied across our 11 Textbooks & 194 Papers) | 194 Peer-Reviewed Biology Papers (2022–2024) |
 | **Susceptibility to Guessing** | **Very Low** (0 words context yields 10% accuracy / 90% abstention) | **Zero** (Every quote is physically searched on disk) | **Moderate** (Distractor elimination allows 70% closed-book score) |
 | **Primary Vulnerability** | Requires curated golden pages; does not check quotation characters | Brittle to PDF typesetting/OCR quirks without a Quote-Snapping Gate | Multiple-choice options provide biological priming clues |
 

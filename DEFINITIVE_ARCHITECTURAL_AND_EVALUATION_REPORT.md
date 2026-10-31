@@ -166,7 +166,7 @@ flowchart TD
 
 | Dimension | 1. Original Sanity Method (`run_eval.py`) | 2. Allen Institute Method (`ScholarQABench`) | 3. FutureHouse Method (`LitQA2`) |
 |---|---|---|---|
-| **Underlying Corpus** | 11 Graduate Textbooks (~4.17M words, 12,320 pages) | 12,320 Textbook chunks + Academic papers | 194 Biology Papers (2022–2024, *Nature*, *Cell*) |
+| **Underlying Corpus Tested** | 11 Graduate Textbooks (~4.17M words, 12,320 pages) | **None from Allen** (Adopted Allen *methodology* only; applied across our 11 Textbooks & 194 Papers) | 194 Biology Papers (2022–2024, *Nature*, *Cell*) |
 | **Primary Scientific Question** | *"Can the AI deduce whether a mechanism is logically proven by the text?"* | *"Did the author physically write the quote inside the quotation marks?"* | *"Can the AI locate an obscure empirical measurement in recent literature?"* |
 | **Cognitive Mode Probed** | Cross-chapter multi-hop deductive synthesis | Verbatim attribution and citation provenance | High-resolution needle-in-a-haystack fact discovery |
 | **Vulnerability to Guessing** | **Very Low**: Raw LLM scored 10% (abstained 90% when given 0 context). | **Zero**: Quoted strings are verified against physical disk bytes. | **Moderate**: Multiple-choice clues let raw LLM score 70% closed-book. |
