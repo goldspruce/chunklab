@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Master Comparative Scorecards: Method 1 vs. Method 2 (All 10 Questions)</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 980px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.4rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    .subtitle { color: #64748b; font-size: 1.05rem; margin-top: -6px; margin-bottom: 24px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      color: #1e3a8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.90rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    .highlight-row { background-color: #f0fdf4 !important; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge-pass { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-fail { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-warn { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <h1>Master Comparative Scorecards: Separated by Method</h1>
+    <div class="subtitle">Overall Aggregate Percentages Across All 10 Benchmark Questions (5 Scientific AI Platforms)</div>
+
+    <blockquote>
+      <strong>Methodological Separation:</strong> Evaluated across 10 expert scientific mechanism inquiries spanning Physics, Biophysics, Neurophysiology, Biochemistry, and Information Theory against 12,320 canonical textbook chunks (~4.5M words). Every figure reflects overall aggregate percentages (%).
+    </blockquote>
+
+    <h2>Table 1: Method 1 Scorecard — Scientific Inquiry & Hypothesis Verification (Overall %)</h2>
+    <p><em>Task: Closed-system verification of 10 complex multi-step hypotheses across graduate physics and biology treatises.</em></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Platform / Architecture</th>
+          <th>Verdict Acc (%)</th>
+          <th>Correct (N/10)</th>
+          <th>Page Recall (%)</th>
+          <th>Avg Context Words</th>
+          <th>Token Reduction</th>
+          <th>Avg Latency</th>
+          <th>Abstention Rate (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>$S_0$: Raw Frontier LLM</strong><br><small style="color:#64748b;">(Parametric Memory)</small></td>
+          <td><span class="badge badge-fail">10.0%</span></td>
+          <td>1 / 10</td>
+          <td><span class="badge badge-fail">0.0%</span></td>
+          <td>0w</td>
+          <td>Baseline ($1.0\times$)</td>
+          <td>8.7s</td>
+          <td><span class="badge badge-fail">0.0% (Guessed)</span></td>
+        </tr>
+        <tr>
+          <td><strong>$S_1$: BM25 Sliding Chunks</strong><br><small style="color:#64748b;">(Traditional RAG)</small></td>
+          <td><span class="badge badge-pass">70.0%</span></td>
+          <td>7 / 10</td>
+          <td><span class="badge badge-warn">25.0%</span></td>
+          <td>690w</td>
+          <td>$72\times$ reduction</td>
+          <td>3.2s</td>
+          <td>0.0%</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong>$S_2$: Relational Claims DB</strong><br><small style="color:#166534;">(Sanity Engine Propositional)</small></td>
+          <td><span class="badge badge-pass">70.0%</span></td>
+          <td>7 / 10</td>
+          <td><span class="badge badge-pass">55.0%</span></td>
+          <td><strong>357w</strong></td>
+          <td><strong style="color:#166534;">$139\times$ reduction</strong></td>
+          <td><strong>2.1s</strong></td>
+          <td>0.0%</td>
+        </tr>
+        <tr>
+          <td><strong>$S_3$: Causal Claim Graph</strong><br><small style="color:#64748b;">(Sanity Engine Multi-Hop)</small></td>
+          <td><span class="badge badge-warn">40.0%</span></td>
+          <td>4 / 10</td>
+          <td><span class="badge badge-warn">35.0%</span></td>
+          <td>393w</td>
+          <td>$126\times$ reduction</td>
+          <td>5.4s</td>
+          <td><span class="badge badge-pass">60.0% (Abstained)</span></td>
+        </tr>
+        <tr>
+          <td><strong>$S_{\text{cached}}$: Long-Context Model</strong><br><small style="color:#64748b;">(Gemini 50k Cached Window)</small></td>
+          <td><span class="badge badge-pass">60.0%</span></td>
+          <td>6 / 10</td>
+          <td><span class="badge badge-fail">20.0%</span></td>
+          <td>49,664w</td>
+          <td>$139\times$ Token Burn</td>
+          <td>4.1s</td>
+          <td>0.0%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Table 2: Method 2 Scorecard — Allen Institute ScholarQA Forensic Audit (Overall %)</h2>
+    <p><em>Task: Open research queries evaluated via physical disk character matching (Quote Snapping) and adversarial closed-world NLI referee (Entailment).</em></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Platform / Architecture</th>
+          <th>Citations Emitted</th>
+          <th>Verified Quotes</th>
+          <th>Quote Veracity (%)</th>
+          <th>Hallucination (%)</th>
+          <th>Claim Entailment (%)</th>
+          <th>Citation Bluffing (%)</th>
+          <th>Truth Density</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>$S_0$: Raw Frontier LLM</strong><br><small style="color:#64748b;">(Parametric Memory)</small></td>
+          <td>18</td>
+          <td>2</td>
+          <td><span class="badge badge-fail">11.1%</span></td>
+          <td><span class="badge badge-fail">88.9%</span></td>
+          <td><span class="badge badge-fail">11.1%</span></td>
+          <td><span class="badge badge-fail">88.9%</span></td>
+          <td>&infin; (0w context)</td>
+        </tr>
+        <tr>
+          <td><strong>$S_1$: BM25 Sliding Chunks</strong><br><small style="color:#64748b;">(Traditional RAG)</small></td>
+          <td>8</td>
+          <td>6</td>
+          <td><span class="badge badge-pass">75.0%</span></td>
+          <td><span class="badge badge-warn">25.0%</span></td>
+          <td><span class="badge badge-pass">75.0%</span></td>
+          <td><span class="badge badge-pass">0.0%</span></td>
+          <td>1.09 claims / 1kw</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong>$S_2$: Relational Claims DB</strong><br><small style="color:#166534;">(Sanity Engine Propositional)</small></td>
+          <td>8</td>
+          <td>6</td>
+          <td><span class="badge badge-pass">75.0%</span></td>
+          <td><span class="badge badge-warn">25.0%</span></td>
+          <td><span class="badge badge-pass">75.0%</span></td>
+          <td><span class="badge badge-pass">0.0%</span></td>
+          <td><strong style="color:#166534;">2.10 claims / 1kw</strong></td>
+        </tr>
+        <tr>
+          <td><strong>$S_3$: Causal Claim Graph</strong><br><small style="color:#64748b;">(Sanity Engine Multi-Hop)</small></td>
+          <td>8</td>
+          <td>7</td>
+          <td><span class="badge badge-pass">87.5%</span></td>
+          <td><span class="badge badge-pass">12.5%</span></td>
+          <td><span class="badge badge-pass">87.5%</span></td>
+          <td><span class="badge badge-pass">0.0%</span></td>
+          <td><strong style="color:#166534;">2.23 claims / 1kw</strong></td>
+        </tr>
+        <tr>
+          <td><strong>$S_{\text{cached}}$: Long-Context Model</strong><br><small style="color:#64748b;">(Gemini 50k Cached Window)</small></td>
+          <td>17</td>
+          <td>16</td>
+          <td><span class="badge badge-pass">94.1%</span></td>
+          <td><span class="badge badge-pass">5.9%</span></td>
+          <td><span class="badge badge-pass">88.2%</span></td>
+          <td><span class="badge badge-warn">5.9%</span></td>
+          <td>0.04 claims / 1kw</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Architectural Verdict Summary</h2>
+    <ul>
+      <li><strong>Accuracy Leader (Method 1):</strong> $S_2$ Relational DB & $S_1$ BM25 (<strong>70.0%</strong>).</li>
+      <li><strong>Physical Veracity Leader (Method 2):</strong> $S_{\text{cached}}$ (<strong>94.1%</strong>) and $S_3$ Claim Graph (<strong>87.5%</strong>).</li>
+      <li><strong>Zero-Bluffing Invariant:</strong> Sanity Engine ($S_1, S_2, S_3$) achieved <strong>0.0% Citation Bluffing</strong>.</li>
+      <li><strong>Maximum Truth Density:</strong> $S_3$ (2.23) and $S_2$ (2.10) delivered over <strong>$50\times$ higher truth per token</strong> than long-context caching (0.04 claims per 1k words).</li>
+    </ul>
+  </div>
+</body>
+</html>
