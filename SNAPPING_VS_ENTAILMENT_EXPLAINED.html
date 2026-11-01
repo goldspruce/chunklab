@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quote Snapping vs. Entailment: The Two-Gate Attribution Gauntlet</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.45rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    h3 { color: #334155; font-size: 1.15rem; margin-top: 1.4rem; }
+    .subtitle { color: #64748b; font-size: 1.05rem; margin-top: -6px; margin-bottom: 24px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      color: #1e3a8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background-color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge-pass { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-fail { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-warn { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .matrix-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .quadrant {
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .q1 { background-color: #f0fdf4; border-color: #86efac; }
+    .q2 { background-color: #fef2f2; border-color: #fca5a5; }
+    .q3 { background-color: #fffbeb; border-color: #fde68a; }
+    .q4 { background-color: #faf5ff; border-color: #e9d5ff; }
+    .quadrant h4 { margin: 0 0 8px 0; font-size: 1rem; }
+    .quadrant p { margin: 0; font-size: 0.88rem; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <h1>Quote Snapping vs. Entailment</h1>
+    <div class="subtitle">The Two-Gate Attribution Gauntlet in Sanity Engine & ScholarQA Verification</div>
+
+    <blockquote>
+      <strong>Core Synthesis:</strong> Attribution Veracity requires passing two sequential gates:<br>
+      $$\text{Attribution Veracity} = \underbrace{\text{Gate 1: Quote Snapping}}_{\text{Physical Grounding on Disk}} \ \land \ \underbrace{\text{Gate 2: Entailment}}_{\text{Logical & Epistemic Support}}$$
+    </blockquote>
+
+    <h2>1. Executive Comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Gate 1: Quote Snapping (<code>quote_snapping_verify</code>)</th>
+          <th>Gate 2: Entailment (<code>auto_entail</code> / <code>ENTAIL_SYS</code>)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Core Question</strong></td>
+          <td><em>"Did the human author actually write these exact words in the literature?"</em></td>
+          <td><em>"Does this quote actually prove or logically support the model's claim?"</em></td>
+        </tr>
+        <tr>
+          <td><strong>Epistemic Target</strong></td>
+          <td><strong>Physical Textual Provenance</strong> (Physical Grounding)</td>
+          <td><strong>Semantic Truth & Deductive Logic</strong> (Logical Support)</td>
+        </tr>
+        <tr>
+          <td><strong>Failure Mode Caught</strong></td>
+          <td><span class="badge badge-fail">Citation Hallucination / Fabrication</span></td>
+          <td><span class="badge badge-fail">Citation Bluffing / Irrelevant Attribution</span></td>
+        </tr>
+        <tr>
+          <td><strong>Mechanism</strong></td>
+          <td>Deterministic RegEx, OCR de-hyphenation, 6-word shingle overlap (&ge;50%)</td>
+          <td>Adversarial Natural Language Inference (NLI) LLM Critic ($T=0.0$)</td>
+        </tr>
+        <tr>
+          <td><strong>Computation Cost</strong></td>
+          <td>Sub-millisecond ($\mathcal{O}(N)$ string search), 0 LLM tokens</td>
+          <td>Single LLM inference call (~100 tokens), structured Pydantic JSON</td>
+        </tr>
+        <tr>
+          <td><strong>Dependency</strong></td>
+          <td>Evaluated first against raw textbook corpus chunks</td>
+          <td>Conditional (Only runs if Gate 1 returns <code>verified</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>What Fools It Alone</strong></td>
+          <td>Accepts genuine quotes that are completely irrelevant to the claim</td>
+          <td>Accepts plausible synthetic quotes that logically entail the claim</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. The Four Quadrants of Scientific Attribution</h2>
+    <div class="matrix-box">
+      <div class="quadrant q1">
+        <h4 style="color: #166534;">Quadrant I: Verifiable Truth (Gate 1 ✅, Gate 2 ✅)</h4>
+        <p><strong>Status:</strong> Grounded & Deductively Sound.<br>
+        <strong>Example:</strong> Sanity Engine $S_2$ & $S_3$ on Question 2. Quote ($\frac{1}{2} m v_x^2 = \frac{1}{2} k_B T$) exists verbatim on page 2 of Berg (1993) and logically entails that thermal velocity is independent of fluid viscosity.</p>
+      </div>
+      <div class="quadrant q2">
+        <h4 style="color: #991b1b;">Quadrant II: Citation Bluffing (Gate 1 ✅, Gate 2 ❌)</h4>
+        <p><strong>Status:</strong> Attribution Poisoning.<br>
+        <strong>Example:</strong> Frontier Long-Context ($S_{\text{cached}}$) on Question 3. Retrieves a real 30-word sentence from Page 848 regarding adiabatic sound velocity, but attaches it to a claim about acoustic boundary impedance reflection. 100% genuine text, 100% citation bluff.</p>
+      </div>
+      <div class="quadrant q3">
+        <h4 style="color: #92400e;">Quadrant III: Plausible Hallucination (Gate 1 ❌, Gate 2 ✅)</h4>
+        <p><strong>Status:</strong> Fabricated Source.<br>
+        <strong>Example:</strong> Unassisted Frontier LLM ($S_0$) generating quotes from memory: <em>"Berg writes: 'Equipartition dictates that viscous drag does not alter instantaneous kinetic velocity.'"</em> Entailment is logically sound, but Berg never wrote that sentence!</p>
+      </div>
+      <div class="quadrant q4">
+        <h4 style="color: #6b21a8;">Quadrant IV: Total Delusion (Gate 1 ❌, Gate 2 ❌)</h4>
+        <p><strong>Status:</strong> Synthetic Nonsense.<br>
+        <strong>Example:</strong> Fabricated quote from a non-existent paper asserting an unphysical conservation violation.</p>
+      </div>
+    </div>
+
+    <h2>3. Gate 1 Mechanics: Quote Snapping</h2>
+    <p>In real-world scientific literature, textbook scans and digitized papers contain OCR anomalies: line-break hyphenation (<code>ther- \n mal motion</code>), curly quotes (<code>“...”</code>), non-breaking spaces, and ellipsis joins (<code>...</code>). A naive exact string match falsely rejects real citations.</p>
+    <p>Quote Snapping implements a 4-stage algorithmic gauntlet in <code>engine.py</code>:</p>
+    <ol>
+      <li><strong>Ellipsis Clause Splitting:</strong> Breaks compound quotes separated by <code>...</code> into independent sub-clauses (&ge; 3 words) and verifies each independently.</li>
+      <li><strong>OCR Normalization:</strong> Strips line-break hyphens, quotes, and punctuation (<code>clean_for_quote_match</code>).</li>
+      <li><strong>Exact Substring Matching:</strong> Evaluates clean quote against clean corpus passages.</li>
+      <li><strong>Fuzzy Shingle Snapping:</strong> Computes sliding 6-word shingles. If &ge; 50% of shingles hit a continuous chunk in the corpus, it snaps the candidate to its exact physical byte coordinates on disk.</li>
+    </ol>
+
+    <h2>4. Gate 2 Mechanics: Entailment</h2>
+    <p>Gate 2 implements an adversarial Natural Language Inference (NLI) referee using an isolated, closed-world prompt at temperature $T=0.0$:</p>
+    <pre><code>ENTAIL_SYS = (
+    "Decide whether the QUOTE supports the CLAIM. "
+    "Use only the quote. Answer supports / partly / not / unclear with a one-sentence reason."
+)
+
+class Entail(BaseModel):
+    label: Literal["supports", "partly", "not", "unclear"] = "unclear"
+    why: str = ""</code></pre>
+    <p><strong>Sequential Execution Rule:</strong> Gate 2 runs <em>only if Gate 1 returned <code>verified</code></em>. There is no mathematical or logical purpose in evaluating whether a fabricated quote entails a claim, because the quote itself is synthetic!</p>
+    <pre><code>d["quote_status"] = verify_quote(i.quote, p["text"], retriever.chunks) if p else "bad_passage_id"
+d["auto_entail"] = None
+if auto_entail and d["quote_status"] == "verified":
+    d["auto_entail"] = Entail.model_validate(critic.json(
+        ENTAIL_SYS, f"CLAIM: {i.claim}\nQUOTE: {i.quote}", Entail, 0.0)).model_dump()</code></pre>
+
+    <h2>5. Key Takeaways</h2>
+    <ul>
+      <li><strong>Quote Snapping</strong> ensures you are reading <strong>real words written by the actual author on disk</strong>.</li>
+      <li><strong>Entailment</strong> ensures those words <strong>actually prove the specific claim being asserted</strong>.</li>
+      <li>Checking only Gate 1 allows <strong>Citation Bluffing</strong> ($S_{\text{cached}}$ failure mode).</li>
+      <li>Checking only Gate 2 allows <strong>Hallucinated Citations</strong> ($S_0$ failure mode).</li>
+      <li><strong>Both gates are non-negotiable for zero-hallucination scientific AI.</strong></li>
+    </ul>
+  </div>
+</body>
+</html>
