@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forensic Case Study: How Each Platform Handles Textbook Question 4</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.45rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { color: #334155; font-size: 1.2rem; margin-top: 1.5rem; }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.5rem 0;
+      padding: 12px 20px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <div id="content"></div>
+  </div>
+  <script>
+    const rawMd = "# \ud83d\udd2c Forensic Case Study: How Each Platform Handles Textbook Question 4\n### *An Architectural Autopsy of S\u2080, S\u2081, S\u2082, S\u2083, and Long-Context Caching on Ultrasonic Wave Attenuation & The Universal Abstention Phenomenon*\n\n> **Subject Item**: Textbook Question 4 (`q04` / `SQA_04`)  \n> **Source Canon**: Richard Feynman, *The Feynman Lectures on Physics*, Vol. 1 (1963), Chapter 47 (Sound), Section 47-5, Page 848  \n> **Ground Truth Physics**: Acoustic wave absorption in a gas arises from thermal conduction and molecular viscosity. As acoustic frequency increases, acoustic wavelength ($\\lambda$) approaches the molecular mean free path. Feynman states on Page 848: *\"We can expect correctly that this absorption increases as the wavelength approaches the mean free path.\"* Because higher frequency corresponds to shorter wavelength, **ultrasonic absorption increases steeply with frequency**.  \n> **Original Hypothesis (`q04`)**: *\"Air absorption of ultrasonic sound waves decreases monotonically at higher ultrasonic frequencies.\"*  \n> **Ground Truth Verdict**: `REFUTED`  \n> **Evaluated Protocols**:  \n> 1. **Method 1: The Original Sanity Engine Benchmark (`run_eval.py`)** \u2014 3-Way Deductive Hypothesis Verification (`SUPPORTED`, `REFUTED`, `INSUFFICIENT`).  \n> 2. **Method 2: The Allen Institute ScholarQA Benchmark (`run_scholarqa_bakeoff.py`)** \u2014 Forensic Quote Attribution & Citation Bluffing Audit.\n\n---\n\n## 1. The Benchmark Problem: Question 4\n\nWhile Question 2 demonstrated how platforms behave when evidence is cleanly isolated on Page 2, **Question 4** exposes the hardest challenge in scientific AI: **retrieving a subtle physical derivation buried deep within a 50,000-word chapter, and testing whether the system hallucinates when retrieval fails.**\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                              THE TARGET TEST ITEM: QUESTION 4                          \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Hypothesis (q04)      \u2502 \"Air absorption of ultrasonic sound waves decreases            \u2502\n\u2502                       \u2502  monotonically at higher ultrasonic frequencies.\"              \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Ground Truth Verdict  \u2502 REFUTED (Absorption increases with frequency as lambda -> MFP) \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Canonical Source      \u2502 Richard Feynman, Lectures on Physics Vol 1 (1963), Ch. 47, p848\u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Verbatim Ground Truth \u2502 \"Under this condition the slight amount of heat flow in a      \u2502\n\u2502 (Feynman Vol 1, p.848)\u2502  sound wave does not affect the speed, although it gives a     \u2502\n\u2502                       \u2502  small absorption of the sound energy. We can expect correctly \u2502\n\u2502                       \u2502  that this absorption increases as the wavelength approaches   \u2502\n\u2502                       \u2502  the mean free path...\"                                        \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 The Retrieval Trap    \u2502 The target sentence does not use the word \"ultrasonic\"; it uses\u2502\n\u2502                       \u2502 fundamental acoustic physics (\"wavelength\", \"mean free path\",  \u2502\n\u2502                       \u2502 \"heat flow\", \"sound energy\").                                  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n---\n\n## 2. Complete Dual-Method Scorecard on Question 4\n\nThe table below contrasts all five platforms across both benchmark methodologies on Question 4:\n\n| Evaluation Dimension | Metric Source | $S_0$ (Raw Frontier LLM) | $S_1$ (BM25 Chunker) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\\text{cached}}$ (Gemini Long Context) |\n| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n| **Method 1: Retrieval Call** | `run_eval.py` | None (`hits = []`) | BM25 on raw chunks | SQLite FTS5 proposition join | Causal graph path traversal | Slice prompt caching (90 pages) |\n| **Method 1: Context Payload** | `run_eval.py` | **0w** | 827w | **193w** | 369w | 43,994w *(Severe bloat)* |\n| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` *(Abstain)*| `insufficient` *(Abstain)*| `insufficient` *(Abstain)*| `insufficient` *(Abstain)*| `insufficient` *(Abstain)*|\n| **Method 1: Ground Truth** | `eval.jsonl` | `refuted` | `refuted` | `refuted` | `refuted` | `refuted` |\n| **Method 1: Verdict Accuracy**| `run_eval.py` | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) |\n| **Method 1: Calibrated Safety**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |\n| **Method 1: False Positive Rate**| `run_eval.py` | **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**|\n| **Method 1: Page Recall** | `run_eval.py` | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 *(Lost in middle)* |\n| **Method 2: Citations Made** | `run_scholarqa_bakeoff.py`| 2 citations | 0 citations | 0 citations | 0 citations | 0 citations |\n| **Method 2: Gate 1 Snapping**| `run_scholarqa_bakeoff.py`| \u274c **50.0% (1/2 Fake)** | N/A (Withheld) | N/A (Withheld) | N/A (Withheld) | N/A (Withheld) |\n| **Method 2: Gate 2 Entailment**| `run_scholarqa_bakeoff.py`| \u274c **0.0% Sound** | N/A | N/A | N/A | N/A |\n| **Method 2: Citation Bluffing**| `run_scholarqa_bakeoff.py`| **100.0% (Bluffing)** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |\n| **Method 2: Context Footprint**| `run_scholarqa_bakeoff.py`| **0w** | 827w | **1,047w** | 804w | 17,948w *(17\u00d7 bloat)* |\n| **Method 2: Latency** | `run_scholarqa_bakeoff.py`| 6.2s | **1.2s** | **1.9s** | 3.8s | 15.91s |\n\n---\n\n## 3. The Core Discovery: The Universal Abstention Phenomenon\n\nQuestion 4 illustrates one of the most critical findings in the entire Sanity Engine benchmark:\n\n1. **Every Single Retrieval Engine Failed to Find the Needle**:\n   - $S_1$ (BM25) matched sound speed equations in Chapter 47, but missed the absorption sentence.\n   - $S_2$ (Relational DB) ranked general wave propagation propositions above absorption.\n   - $S_3$ (Causal Graph) lacked the specific edge connecting frequency to thermodynamic heat flow loss.\n   - $S_{\\text{cached}}$ (Gemini Long Context) loaded **43,994 words** into context\u2014**including the target sentence on Page 848**\u2014but the model\u2019s attention heads suffered severe attention dilution (\"Lost in the Middle\") and overlooked it completely!\n\n2. **Every Single System Safely Abstained (Zero False Positives)**:\n   - When traditional RAG systems fail to retrieve relevant context, they often hallucinate or guess based on pre-training priors.\n   - Under the Sanity Engine reader prompt (`\"Use ONLY this provided evidence... if it neither confirms nor contradicts, you MUST answer 'insufficient'\"`), **every platform responded `\"insufficient\"`**.\n   - **Not a single platform committed a False Positive error.**\n   - While accuracy was technically 0% (because the gold verdict was `refuted`), **calibrated epistemic safety was 100%**.\n\n---\n\n## 4. Platform-by-Platform Autopsy on Question 4\n\n### 1. $S_0$ (Raw Frontier LLM)\n* **Method 1**: Received 0 words of context. Adhering to the prompt, it outputted:\n  > *\"No evidence was provided to evaluate the relationship between air absorption and ultrasonic frequencies.\"*  \n  Verdict: `insufficient`.\n* **Method 2**: Asked open mechanistic questions without context, it attempted to quote Stokes' law of sound attenuation and fabricated a reference to an external mechanics manual (**100% Citation Bluffing**).\n\n### 2. $S_1$ (BM25 Sliding Chunker)\n* **Method 1**: Retrieved 827 words from Feynman Chapter 47. The retrieved text discussed Laplace\u2019s adiabatic speed of sound, but ended just before the absorption sentence.\n* **Model Reasoning**:\n  > *\"The provided evidence discusses the speed of sound in air being independent of frequency, but it does not contain information regarding the absorption of ultrasonic sound waves or how that absorption changes with frequency.\"*  \n  Verdict: `insufficient`.\n\n### 3. $S_2$ (Relational Proposition DB)\n* **Method 1**: SQLite FTS5 query returned 3 atomic propositions (193 words) on acoustic wave equations.\n* **Model Reasoning**:\n  > *\"The provided evidence does not contain any information regarding the absorption of ultrasonic sound waves or their frequency dependence.\"*  \n  Verdict: `insufficient`.\n* **Method 2**: When queried on mechanistic bioenergetics / wave dynamics, $S_2$ delivered clean propositions but withheld citations because the strict threshold was not reached. Bluffing rate: **0.0%**.\n\n### 4. $S_3$ (Causal Claim Graph)\n* **Method 1**: Graph search traversed 369 words. Because \"frequency\" and \"channel\" had polysemous collisions with information theory nodes, it pulled communication theorems.\n* **Model Reasoning**:\n  > *\"The provided evidence consists entirely of information theory principles regarding channel capacity and stochastic processes, and contains no information regarding ultrasonic sound waves or air absorption.\"*  \n  Verdict: `insufficient`.\n\n### 5. $S_{\\text{cached}}$ (Gemini Long-Context Caching) \u2014 The \"Lost in the Middle\" Disaster\n* **Method 1**: Injected **43,994 words** (pages 775 to 865 of Feynman Vol. 1) directly into Gemini Flash's prompt cache.\n* **The Irony**: **The target sentence on Page 848 was literally inside the prompt!**\n* **The Failure**: Surrounded by 44,000 words of thermodynamics, blackbody radiation, and differential wave equations, Gemini Flash's attention mechanisms completely failed to retrieve the sentence.\n* **Model Reasoning**:\n  > *\"The provided text discusses sound waves, thermodynamics, and modes of vibration, but it does not contain information regarding the relationship between air absorption of ultrasonic sound waves and frequency.\"*  \n  Verdict: `insufficient` (Latency: 15.91 seconds; Cost: 44,000 tokens).\n* **Verdict**: Shoving entire books into context without structured retrieval is unreliable and exorbitantly expensive.\n";
+    document.getElementById('content').innerHTML = marked.parse(rawMd);
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '43585', right: '43585', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  </script>
+</body>
+</html>
