@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Benchmark Questions: Question 2 & Question 5</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 780px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 1.8rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    h2 { color: #1e293b; font-size: 1.35rem; margin-top: 1.8rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      color: #1e3a8a;
+      font-size: 1.05rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    ul { padding-left: 1.2rem; }
+    li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <div id="content"></div>
+  </div>
+  <script>
+    const rawMd = "# \ud83d\udcdd Benchmark Questions: Question 2 & Question 5\n### *The Raw Question Formulations Under Both Benchmark Methods*\n\n---\n\n## Question 2: Thermal Velocity & Equipartition\n\n* **Method 1 (Closed Hypothesis Verification)**:  \n  > *\"Lowering the temperature of an aqueous solution increases the root-mean-square thermal velocity of dissolved proteins like lysozyme.\"*  \n  > **Ground Truth Verdict**: `REFUTED`\n\n* **Method 2 (Open Mechanistic Research Query)**:  \n  > *\"According to equipartition theory, what is the thermal kinetic energy per spatial degree of freedom for microscopic particles in aqueous suspension, and how does thermal velocity scale with temperature?\"*\n\n* **Reference**: Howard C. Berg, *Random Walks in Biology* (1993), Chapter 1, Page 2.\n\n---\n\n## Question 5: Passive Diffusion vs. ATP Hydrolysis\n\n* **Method 1 (Closed Hypothesis Verification)**:  \n  > *\"Passive diffusion across a lipid bilayer requires direct metabolic input from ATP hydrolysis.\"*  \n  > **Ground Truth Verdict**: `REFUTED`\n\n* **Method 2 (Open Mechanistic Research Query)**:  \n  > *\"How does the thermodynamic driving force for passive diffusion across a biological lipid bilayer differ from active transport, and does passive permeation require direct coupling to metabolic ATP hydrolysis?\"*\n\n* **Reference**: Bruce Alberts et al., *Molecular Biology of the Cell*, 7th ed. (2022), Chapter 11, Section 11-1, Pages 678\u2013679.\n";
+    document.getElementById('content').innerHTML = marked.parse(rawMd);
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '57279', right: '57279', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  </script>
+</body>
+</html>
