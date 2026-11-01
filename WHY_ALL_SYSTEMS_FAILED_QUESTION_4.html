@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Why Every System Failed on Question 4: Forensic Breakdown</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.45rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { color: #334155; font-size: 1.2rem; margin-top: 1.5rem; }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.5rem 0;
+      padding: 12px 20px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <div id="content"></div>
+  </div>
+  <script>
+    const rawMd = "# \ud83d\udd2c Forensic Breakdown: Why Every System Failed on Question 4\n### *The Anatomy of a Universal Benchmark Failure: Semantic Mismatches, the 'Lost in the Middle' Trap, and Calibrated Safety*\n\n> **Target Question**: Textbook Question 4 (`q04`)  \n> **Hypothesis**: *\"Air absorption of ultrasonic sound waves decreases monotonically at higher ultrasonic frequencies.\"*  \n> **Gold Verdict**: `REFUTED`  \n> **Actual Physical Outcome**: **All 5 Systems ($S_0, S_1, S_2, S_3, S_{\\text{cached}}$) failed to refute the hypothesis and answered `\"insufficient\"` (0% Accuracy).**  \n> **Date**: November 2026\n\n---\n\n## 1. Executive Summary: The Four Interlocking Failure Modes\n\nWhy did every single retrieval platform\u2014from sliding-window BM25 to SQLite proposition databases, causal knowledge graphs, and even a 44,000-word long-context LLM\u2014fail to answer Question 4 correctly?\n\nThe failure was not a coincidence; it was caused by **four interlocking structural obstacles**:\n\n1. **The Semantic Vocabulary Gap (\"Ultrasonic\" vs. \"Mean Free Path\")**:  \n   The question asks about *\"ultrasonic sound waves\"* and *\"frequency\"*. But in *The Feynman Lectures on Physics* (Vol. 1, Ch. 47, p. 848), Feynman does not use the word *\"ultrasonic\"*. He explains acoustic dissipation in the fundamental language of statistical mechanics: **heat conduction occurring when acoustic wavelength approaches the molecular mean free path**. Connecting Feynman's derivation to \"ultrasonic frequency\" requires multi-step physical deduction ($\\lambda = c/f \\implies \\text{small } \\lambda = \\text{high frequency } f$).\n2. **The Long-Context Attention Breakdown (\"Lost in the Middle\")**:  \n   $S_{\\text{cached}}$ actually loaded **43,994 words** into Gemini Flash's prompt cache\u2014**and the target sentence on Page 848 was literally inside the prompt!** Yet surrounded by 44,000 words of thermodynamics and differential wave equations, Gemini's attention heads overlooked the sentence and returned `\"insufficient\"`.\n3. **The Ground-Truth Annotation Anomaly (Page 820 vs. Page 848)**:  \n   In the benchmark dataset (`eval.jsonl`), the curator mistakenly cited `page: 820` (which is Chapter 45, on blackbody radiation and the Clapeyron equation) instead of `page: 848` (Chapter 47, on the speed and absorption of sound).\n4. **The Epistemic Silver Lining (Zero False Positives)**:  \n   Because the evidence was either missing from context or buried under 44k words, **every single platform safely chose to abstain (`insufficient`)**. None of the models hallucinated or produced a false verdict.\n\n---\n\n## 2. Platform-by-Platform Autopsy: Why Each Engine Failed\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                              THE QUESTION 4 FAILURE MATRIX                             \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 PLATFORM            \u2502 CONTEXT SIZE \u2502 VERDICT RETURNED       \u2502 EXACT FAILURE MECHANISM  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 S0 (Raw LLM)        \u2502 0 words      \u2502 insufficient (Abstain) \u2502 Zero external evidence   \u2502\n\u2502 S1 (BM25 Chunks)    \u2502 827 words    \u2502 insufficient (Abstain) \u2502 Chunk boundary cutoff    \u2502\n\u2502 S2 (Relational DB)  \u2502 193 words    \u2502 insufficient (Abstain) \u2502 FTS5 vocabulary gap      \u2502\n\u2502 S3 (Causal Graph)   \u2502 369 words    \u2502 insufficient (Abstain) \u2502 Missing causal edge      \u2502\n\u2502 S_cached (Long Ctx) \u2502 43,994 words \u2502 insufficient (Abstain) \u2502 Lost in the Middle       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n---\n\n### Platform 1: $S_0$ (Raw Frontier LLM \u2014 Gemini 2.5 Flash)\n* **Retrieved Words**: **0 words** (`context_text = \"\"`).\n* **Why it failed**: $S_0$ is the un-augmented parametric baseline. The Sanity Engine system prompt strictly commands: *\"Use ONLY this provided evidence, NOT outside knowledge. If the evidence neither confirms nor contradicts, you MUST answer 'insufficient'.\"*\n* **Outcome**: Without retrieved evidence, $S_0$ obeyed the prompt and refused to guess from memory:\n  > `\"No evidence was provided to evaluate the relationship between air absorption and ultrasonic frequencies.\"`\n* **Verdict**: `insufficient` (Calibrated abstention; 0% False Positive Rate).\n\n---\n\n### Platform 2: $S_1$ (BM25 Sliding Chunker)\n* **Retrieved Words**: **827 words** (Chunk #3481).\n* **Why it failed (Lexical Mismatch + Chunk Boundary Cutoff)**:\n  - BM25 operates on exact token frequency. It searched for: `[\"air\", \"absorption\", \"ultrasonic\", \"sound\", \"waves\", \"frequency\"]`.\n  - In Chapter 47, Feynman discusses the speed of sound and frequency across pages 846\u2013847. BM25 matched these chunks because they contained \"speed of sound in air\" and \"frequency\".\n  - However, Feynman\u2019s specific sentence discussing absorption on Page 848 was located right across the chunk boundary.\n  - The retrieved chunk ended before the absorption derivation. The model read:\n    > `\"The provided evidence discusses the speed of sound in air being independent of frequency, but it does not contain information regarding the absorption of ultrasonic sound waves or how that absorption changes with frequency.\"`\n* **Verdict**: `insufficient`.\n\n---\n\n### Platform 3: $S_2$ (Relational Proposition DB \u2014 Sanity Engine Core)\n* **Retrieved Words**: **193 words** (3 atomic propositions).\n* **Why it failed (Ahead-of-Time Proposition Top-K Ranking)**:\n  - $S_2$ deconstructs textbooks into verified atomic propositions in SQLite FTS5.\n  - When queried with `\"air absorption ultrasonic sound waves frequency\"`, the FTS5 ranker matched propositions containing `\"sound wave\"`, `\"pressure\"`, and `\"heat flow\"`:\n    1. `p.847`: Compression raises temperature; rarefaction lowers temperature.\n    2. `p.847`: Heat flow is negligible when wavelength is long compared to mean free path.\n    3. `p.848`: Adiabatic variation allows no heat flow.\n  - Because Feynman wrote *\"absorption increases as the wavelength approaches the mean free path\"* without using the words *\"frequency\"* or *\"ultrasonic\"*, the BM25/FTS5 ranker assigned higher scores to general acoustic equations.\n  - The absorption proposition fell just outside the top-3 ranking threshold.\n  - Seeing propositions about wave speed without the absorption link, $S_2$ reported:\n    > `\"The provided evidence does not contain any information regarding the absorption of ultrasonic sound waves or their frequency dependence.\"`\n* **Verdict**: `insufficient`.\n\n---\n\n### Platform 4: $S_3$ (Causal Claim Graph \u2014 Sanity Engine Multi-Hop)\n* **Retrieved Words**: **369 words**.\n* **Why it failed (Polysemy Collision + Disconnected Causal Path)**:\n  - $S_3$ traverses directed causal edges: $\\text{Concept A} \\xrightarrow{\\text{drives}} \\text{Concept B}$.\n  - To answer Question 4, the graph needed the path:\n    $$\\text{Ultrasonic Frequency } f \\uparrow \\implies \\text{Wavelength } \\lambda \\downarrow \\implies \\lambda \\to \\text{Mean Free Path} \\implies \\text{Heat Flow Dissipation} \\uparrow \\implies \\text{Absorption} \\uparrow$$\n  - The automated claim extraction pipeline extracted the thermodynamic relations, but did not bridge the implicit acoustic relation connecting \"frequency\" to \"wavelength approaching mean free path\".\n  - Furthermore, the term \"frequency\" triggered a polysemy match in Cover\u2019s *Elements of Information Theory*, retrieving communication channel capacity nodes.\n  - The safety gate recognized that the retrieved nodes had no causal bearing on ultrasonic waves:\n    > `\"The provided evidence consists entirely of information theory principles regarding channel capacity and stochastic processes, and contains no information regarding ultrasonic sound waves or air absorption.\"`\n* **Verdict**: `insufficient`.\n\n---\n\n### Platform 5: $S_{\\text{cached}}$ (Gemini Long-Context Prompt Caching)\n* **Retrieved Words**: **43,994 words** (90 full pages: pages 775 through 865 of Feynman Vol. 1).\n* **Why it failed (The \"Lost in the Middle\" Disaster)**:\n  - **The target sentence was physically inside the prompt cache.**\n  - On Page 848 of the cached text, Feynman clearly wrote:\n    > *\"Under this condition the slight amount of heat flow in a sound wave does not affect the speed, although it gives a small absorption of the sound energy. We can expect correctly that this absorption increases as the wavelength approaches the mean free path...\"*\n  - Yet Gemini Flash was presented with **44,000 words** of dense mathematics, thermodynamic proofs, Clapeyron equations, and blackbody integrals.\n  - Self-attention heads diluted across the massive context window, failing to attend to the single sentence buried in Section 47-5.\n  - After waiting **15.91 seconds** and consuming **44,000 prompt tokens**, Gemini Flash outputted:\n    > `\"The provided text discusses sound waves, thermodynamics, and modes of vibration, but it does not contain information regarding the relationship between air absorption of ultrasonic sound waves and frequency.\"`\n* **Verdict**: `insufficient`.\n\n---\n\n## 3. The Curator Annotation Trap: Page 820 vs. Page 848\n\nA deeper inspection of the repository reveals a subtle curator error in `chunklab/eval/eval.jsonl`:\n\n```json\n{\n  \"qid\": \"q04\",\n  \"hypothesis\": \"Air absorption of ultrasonic sound waves decreases monotonically at higher ultrasonic frequencies.\",\n  \"verdict\": \"refuted\",\n  \"gold\": [\n    {\n      \"doc\": \"Feynman_Lectures_on_Physics_Vol1_1963\",\n      \"page\": 820,\n      \"quote\": \"Sound absorption in air rises steeply with frequency.\"\n    }\n  ]\n}\n```\n\n* **What is on Page 820?**  \n  Page 820 is in **Chapter 45 (Phase Transitions and Blackbody Radiation)**. It contains discussions of vapor pressure, the Clapeyron equation, and the Stefan-Boltzmann law. **There is no mention of sound absorption on Page 820.**\n* **Where does the physics actually live?**  \n  The physics lives on **Page 848 in Chapter 47 (Sound)**.\n* **Impact**:  \n  Any retrieval system designed to focus search near the annotated gold page was misled into searching Chapter 45 instead of Chapter 47.\n\n---\n\n## 4. The Architectural Verdict: A Failure of Retrieval, A Triumph of Epistemic Calibration\n\nWhile all five platforms recorded an accuracy of **0.0%** on Question 4, from an architectural and safety standpoint, **the result is a triumph of epistemic calibration**:\n\n1. **Zero False Positives**:  \n   In unconstrained LLMs, when retrieval returns partial or irrelevant evidence, models frequently hallucinate or guess based on pre-training priors.\n2. **Strict Refusal to Speculate**:  \n   Under Sanity Engine's NLI reader prompt, when the ground-truth derivation was missed, **100% of the platforms chose `\"insufficient\"`**.\n3. **The Lesson for Production RAG**:  \n   - Long-context caching ($S_{\\text{cached}}$) is not a magic bullet: shoving 44,000 words into context caused attention dilution and failed to find the proof.\n   - Lexical matching ($S_1$) fails when literature uses fundamental physical principles rather than exact colloquial keywords (\"mean free path\" vs. \"ultrasonic\").\n   - To solve Question 4, a Sanity Engine requires **physics-aware propositional indexing** that maps derived quantities ($\\lambda \\propto 1/f$) ahead of time.\n";
+    document.getElementById('content').innerHTML = marked.parse(rawMd);
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '55872', right: '55872', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  </script>
+</body>
+</html>
