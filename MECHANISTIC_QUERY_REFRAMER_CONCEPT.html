@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Mechanistic Query Reframer: A Narrower, High-Value Scientific Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 1.95rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.4rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    h3 { color: #334155; font-size: 1.15rem; margin-top: 1.4rem; }
+    .subtitle { color: #64748b; font-size: 1.05rem; margin-top: -6px; margin-bottom: 24px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      color: #1e3a8a;
+    }
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .concept-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0ea5e9;
+      padding: 18px 22px;
+      border-radius: 0 8px 8px 0;
+    }
+    .concept-card h4 {
+      margin: 0 0 6px 0;
+      color: #0369a1;
+      font-size: 1.1rem;
+    }
+    .concept-card p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: #334155;
+    }
+    .mockup-container {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      margin: 24px 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .mockup-header {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .mockup-section {
+      background: #1e293b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      border-left: 3px solid #38bdf8;
+    }
+    .mockup-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .mockup-text {
+      font-size: 0.95rem;
+      color: #f1f5f9;
+    }
+    .btn-mock {
+      display: inline-block;
+      background: #0284c7;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <h1>The Mechanistic Query Reframer</h1>
+    <div class="subtitle">Commentary on a Narrower, High-Value Pedagogical AI Tool</div>
+
+    <blockquote>
+      <strong>User Concept:</strong> <em>"I think a narrower tool might be better here. User asks question/hypothesis like our 10 sample questions, the platform returns the Allen open-ended question, which shows the user how to ask questions in a better way."</em>
+    </blockquote>
+
+    <h2>1. Executive Commentary: Why This Is a Brilliant Direction</h2>
+    <p>This is an outstanding product and architectural insight. In scientific inquiry, <strong>how you frame the question determines whether an AI discovers truth or hallucinates to please you</strong>. Narrowing the tool into a <em>Scientific Query Clarifier & Hypothesis Reframer</em> solves the single biggest vulnerability in scientific AI: <strong>user confirmation bias and leading prompts</strong>.</p>
+
+    <h2>2. The Three Critical Problems It Solves</h2>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <h4>1. Eliminates Sycophancy & "Leading the Witness"</h4>
+        <p>When a user asks: <em>"Does viscosity damp thermal velocity via Stokes drag?"</em>, an LLM's attention heads anchor on the user's suggestion. It searches for reasons to agree rather than testing first principles. The reframer strips the leading bias and turns it into a neutral, thermodynamic exploration.</p>
+      </div>
+
+      <div class="concept-card">
+        <h4>2. Dramatically Boosts Retrieval Accuracy (Fixes RAG at the Root)</h4>
+        <p>A closed hypothesis queries the <em>symptoms</em> (e.g. searching "viscosity Stokes drag"), hitting irrelevant pages. An open mechanistic query expands into <em>fundamental invariants</em> (e.g. "equipartition energy per degree of freedom"), cleanly surfacing the target textbook proof on disk.</p>
+      </div>
+
+      <div class="concept-card">
+        <h4>3. Teaches Scientists How to Think with AI (Pedagogy)</h4>
+        <p>Most researchers query AI like a search engine or multiple-choice quiz. Demonstrating how to transform a crude hypothesis into a rigorous, multi-dimensional ScholarQA prompt actively trains users in scientific AI fluency.</p>
+      </div>
+    </div>
+
+    <h2>3. The 3-Pane Interface Mockup</h2>
+    <div class="mockup-container">
+      <div class="mockup-header">Mechanistic Query Reframer — Sanity Engine Pre-Processor</div>
+      
+      <div class="mockup-section" style="border-left-color: #f59e0b;">
+        <div class="mockup-label">1. Your Raw Hypothesis / Inquiry:</div>
+        <div class="mockup-text">"Does solvent viscosity damp bacterial instantaneous thermal velocity according to Stokes' drag?"</div>
+      </div>
+
+      <div class="mockup-section" style="border-left-color: #10b981;">
+        <div class="mockup-label">2. Reframed ScholarQA Mechanistic Query (The Better Way):</div>
+        <div class="mockup-text">"In low Reynolds number biophysics, what fundamental thermodynamic principle determines a bacterium's instantaneous thermal velocity, and does fluid viscosity enter the instantaneous velocity equation or only the velocity autocorrelation time?"</div>
+      </div>
+
+      <div class="mockup-section" style="border-left-color: #38bdf8;">
+        <div class="mockup-label">3. Why This Framing is Superior:</div>
+        <div class="mockup-text">
+          &bull; <strong>Decouples Invariants:</strong> Separates instantaneous velocity (governed by equipartition) from damping relaxation time (governed by Stokes drag).<br>
+          &bull; <strong>Prevents Sycophancy:</strong> Removes leading prompt bias that causes LLMs to fabricate confirmation.<br>
+          &bull; <strong>Pins Target Literature:</strong> Directly matches Chapter 1 (Berg p. 2) rather than noisy hydrodynamic chapters.
+        </div>
+      </div>
+
+      <div style="margin-top: 18px;">
+        <span class="btn-mock">⚡ Run Search with Reframed Query</span>
+        <span class="btn-mock" style="background: #334155;">📋 Copy Prompt for Claude / ChatGPT</span>
+      </div>
+    </div>
+
+    <h2>4. Strategic Advantages of a Narrower Tool</h2>
+    <ul>
+      <li><strong>Blazing Fast:</strong> Requires only a single lightweight LLM pass (~150 tokens, &lt;1 second) without expensive multi-book searching.</li>
+      <li><strong>Universal Utility:</strong> The reframed query can be copied into any model or tool (Sanity Engine, NotebookLM, PubMed, Claude).</li>
+      <li><strong>High User Trust:</strong> Seeing a clear, mathematically sound reformulation of their question builds immediate user confidence.</li>
+    </ul>
+  </div>
+</body>
+</html>
