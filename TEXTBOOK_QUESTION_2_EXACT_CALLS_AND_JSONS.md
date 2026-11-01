@@ -4,69 +4,102 @@
 
 ---
 
-## 1. Test Item Specification & Canonical Literature
+## 1. Test Item Specification & Ground-Truth Physics
 
-### 1. The Target Query & Hypothesis
-* **Hypothesis (`q02`)**:  
+To evaluate how each system processes scientific literature, we examine its execution trace on **Textbook Question 2** across two complementary evaluation gauntlets:
+1. **The Epistemic Hypothesis Verification Gauntlet (`q02`)**: A 3-way decision task (`supported`, `refuted`, `insufficient`) governed by `chunklab/run_eval.py`.
+2. **The Allen Institute ScholarQA Attribution Audit (`SQA_02`)**: An open mechanism QA task requiring verbatim quotes, disk offset verification, and citation bluffing detection governed by `chunklab/run_scholarqa_bakeoff.py`.
+
+### The Scientific Core
+* **Canonical Reference**: Howard C. Berg, *Random Walks in Biology* (Princeton University Press, 1993), Chapter 1, Page 2.
+* **The Physics**: By the equipartition theorem, each spatial degree of freedom possesses an average kinetic energy of $\frac{1}{2}kT$. Therefore:
+  $$\frac{1}{2} m \langle v_x^2 \rangle = \frac{1}{2} k T \implies \langle v_x^2 \rangle = \frac{k T}{m} \implies v_{\text{rms}} = \sqrt{\frac{k T}{m}}$$
+  Because $v_{\text{rms}} \propto \sqrt{T}$, **lowering the temperature decreases the thermal velocity.**
+* **The Hypothesis (`q02`)**:  
   `"Lowering the temperature of an aqueous solution increases the root-mean-square thermal velocity of dissolved proteins like lysozyme."`  
   * **Ground Truth Verdict**: **`refuted`**
-* **ScholarQA Query (`SQA_02`)**:  
+* **The ScholarQA Query (`SQA_02`)**:  
   `"According to equipartition theory, what is the thermal kinetic energy per spatial degree of freedom for microscopic particles in aqueous suspension, and how does thermal velocity scale with temperature?"`
-* **Canonical Work**: Howard C. Berg, *Random Walks in Biology* (Princeton University Press, 1993), Chapter 1, Page 2.
-* **Underlying Physical Law**: By the equipartition theorem, each translational degree of freedom has mean kinetic energy $\frac{1}{2} m \langle v_x^2 \rangle = \frac{1}{2} k T \implies \langle v^2 \rangle = \frac{k T}{m} \implies v_{\text{rms}} \propto \sqrt{T}$.
 
 ---
 
-## 2. Global JSON Schemas & Prompts
+## 2. The Universal Prompt Architecture (No Preferential Instruction)
 
-### The LLM Output Schema (`ANSWER_SCHEMA`)
-```json
-{
-  "type": "object",
-  "required": ["answer", "citations"],
-  "properties": {
-    "answer": {"type": "string"},
-    "citations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["claim", "source", "quote"],
-        "properties": {
-          "claim": {"type": "string"},
-          "source": {"type": "string"},
-          "quote": {"type": "string"}
-        }
-      }
-    }
-  }
-}
+A common concern in AI benchmarking is whether certain architectures were given preferential prompt engineering or custom persona instructions. 
+
+In this benchmark, **prompts are strictly standardized across all platforms within each task**:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        STANDARDIZED PROMPT MATRIX ACROSS SYSTEMS                       │
+├─────────────────────┬────────────────────────────────┬─────────────────────────────────┤
+│ PLATFORM            │ HYPOTHESIS TASK (run_eval.py)  │ SCHOLARQA AUDIT (bakeoff.py)    │
+├─────────────────────┼────────────────────────────────┼─────────────────────────────────┤
+│ S0 (Raw LLM)        │ "Objective evidence reader"    │ "Expert scientific researcher"  │
+│ S1 (BM25 Chunker)   │ "Objective evidence reader"    │ *(Evaluated on hypothesis test) │
+│ S2 (Relational DB)  │ "Objective evidence reader"    │ "Objective scientific referee"  │
+│ S3 (Causal Graph)   │ "Objective evidence reader"    │ "Objective scientific referee"  │
+│ S_cached (Long Ctx) │ "Objective evidence reader"    │ "Objective scientific referee"  │
+└─────────────────────┴────────────────────────────────┴─────────────────────────────────┘
 ```
 
-### The System Prompts
-* **Raw LLM System Prompt (`RAW_SYSTEM_PROMPT`)**:
-  ```text
-  You are an expert scientific researcher. Answer the query thoroughly.
-  For every substantive factual claim you make, you MUST cite the exact literature and provide a VERBATIM quote from the paper or textbook supporting that claim.
-  Return only valid JSON.
-  ```
-* **Retrieved System Prompt (`RETRIEVED_SYSTEM_PROMPT`)**:
-  ```text
-  You are an objective scientific referee. Answer the user query using ONLY the provided literature context.
-  For every claim you make, cite the passage ID and provide the exact VERBATIM quote copied from the context.
-  Return only valid JSON.
-  ```
+### The Verbatim Prompt Templates
+
+#### 1. The Shared Evidence Reader System Prompt (`run_eval.py`, Line 144)
+Used identically by **all systems ($S_0, S_1, S_2, S_3, S_{\text{cached}}$)** in hypothesis verification:
+```text
+You are an objective scientific evidence reader. Return only JSON.
+```
+
+#### 2. The Hypothesis Verification User Prompt Template (`READER_PROMPT`)
+```text
+Decide whether the evidence below SUPPORTS or REFUTES the hypothesis.
+CRITICAL RULES:
+- Use ONLY this provided evidence, NOT outside knowledge.
+- If the evidence neither confirms nor contradicts the hypothesis, you MUST answer "insufficient".
+- cited: the [numbers] of the evidence items you relied on (e.g. [1, 2]).
+
+HYPOTHESIS: {hypothesis}
+
+EVIDENCE:
+{context}
+```
+
+#### 3. The ScholarQA Zero-Context Researcher Prompt (`RAW_SYSTEM_PROMPT`)
+Used for $S_0$ (where zero context is supplied, forcing it to recall literature from parametric memory):
+```text
+You are an expert scientific researcher. Answer the query thoroughly.
+For every substantive factual claim you make, you MUST cite the exact literature and provide a VERBATIM quote from the paper or textbook supporting that claim.
+Return only valid JSON.
+```
+
+#### 4. The ScholarQA Retrieved Referee Prompt (`RETRIEVED_SYSTEM_PROMPT`)
+Shared identically by **$S_2$, $S_3$, and $S_{\text{cached}}$** (forbidding outside knowledge and mandating verbatim quotation from retrieved text):
+```text
+You are an objective scientific referee. Answer the user query using ONLY the provided literature context.
+For every claim you make, cite the passage ID and provide the exact VERBATIM quote copied from the context.
+Return only valid JSON.
+```
+
+#### 5. The NLI Entailment Judge System Prompt (`engine.ENTAIL_SYS`)
+Used by the automated audit engine to verify whether a quote logically proves a claim:
+```text
+Decide whether the QUOTE supports the CLAIM. Use only the quote. Answer supports / partly / not / unclear with a one-sentence reason.
+```
 
 ---
 
 ## 3. Platform 1: $S_0$ (Raw Frontier LLM) — Execution Trace
 
-$S_0$ executed with **zero retrieval context**, evaluating pure parametric generation.
+$S_0$ executes with **zero retrieval context**, evaluating pure parametric generation.
 
-### 1. Exact Python Call
+### 1. Exact Python Call in `run_scholarqa_bakeoff.py`
 ```python
 user_prompt = f"QUERY: {q['query']}"
 response_json = llm.extract_json(
-    system_prompt=RAW_SYSTEM_PROMPT,
+    system_prompt="""You are an expert scientific researcher. Answer the query thoroughly.
+For every substantive factual claim you make, you MUST cite the exact literature and provide a VERBATIM quote from the paper or textbook supporting that claim.
+Return only valid JSON.""",
     user_prompt=user_prompt,
     schema=ANSWER_SCHEMA
 )
@@ -96,7 +129,7 @@ QUERY: According to equipartition theory, what is the thermal kinetic energy per
 }
 ```
 
-### 4. Exact Evaluation & Forensic Audit JSON (`items.jsonl`)
+### 4. Exact Evaluation & Forensic Audit Record in `items.jsonl`
 ```json
 {
   "system": "Raw_Frontier_LLM",
@@ -139,20 +172,35 @@ QUERY: According to equipartition theory, what is the thermal kinetic energy per
 
 ---
 
-## 4. Platform 2: $S_1$ (BM25 Sliding Chunks) — Execution Trace
+## 4. Platform 2: $S_1$ (BM25 Sliding Chunker) — Execution Trace
 
-$S_1$ chops raw text files into 300-word sliding windows with 50-word overlaps.
+$S_1$ slices literature into arbitrary 300-word blocks with 50-word overlaps.
 
-### 1. Exact Python Call
+### 1. Exact Python Call in `run_eval.py`
 ```python
-hits = bm25_retriever.search("temperature aqueous solution thermal velocity proteins", k=1)
-passages_text = "\n\n".join(f"[{h.id}] ({h.doc} p.{h.pages[0]}):\n{h.text}" for h in hits)
-user_prompt = f"HYPOTHESIS: {hypothesis}\n\nLITERATURE CONTEXT:\n{passages_text}"
+# 1. BM25 keyword search
+hits = bm25_retriever.search("Lowering the temperature of an aqueous solution increases the root-mean-square thermal velocity of dissolved proteins like lysozyme.", k=1)
+
+# 2. Build context
+passages_text = "\n\n".join(f"[{i+1}] ({h.doc} p.{h.pages[0]}):\n{h.text}" for i, h in enumerate(hits))
+
+# 3. Format prompt
+reader_input = READER_PROMPT.format(
+    hypothesis="Lowering the temperature of an aqueous solution increases the root-mean-square thermal velocity of dissolved proteins like lysozyme.",
+    context=passages_text
+)
+
+# 4. LLM Reader Call
+reader_res = llm.extract_json(
+    system_prompt="You are an objective scientific evidence reader. Return only JSON.",
+    user_prompt=reader_input,
+    schema=READER_SCHEMA
+)
 ```
 
-### 2. Exact Retrieved Payload Delivered to LLM (270 Words)
+### 2. Exact Retrieved Context Payload Delivered to LLM (270 Words)
 ```text
-[Berg_Random_Walks_in_Biology_1993:1] (Berg_Random_Walks_in_Biology_1993 p.2):
+[1] (Berg_Random_Walks_in_Biology_1993 p.2):
 Chapter 1
 Diffusion: Microscopic Theory
 Diffusion is the random migration of molecules or small particles arising from motion due to thermal energy. A particle at absolute temperature T has, on the average, a kinetic energy associated with movement along each axis of kT/2, where k is Boltzmann's constant. Einstein showed in 1905 that this is true regardless of the size of the particle, even for particles large enough to be seen under a microscope, i.e., particles that exhibit Brownian movement. A particle of mass m and velocity u, on the x axis has a kinetic energy mi,2/2. This quantity fluctuates, but on the average ‹mi}/2) = KT/2, where ‹ › denotes an average over time or over an ensemble of similar particles. From this relationship we compute the mean-square velocity,
@@ -163,8 +211,18 @@ and the root-mean-square velocity,
 We can use Eq.1.2 to estimate the instantaneous velocity of a small particle, for example, a molecule of the protein lysozyme. Lysozyme has a molecular weight 1.4 × 104g. This is the mass of one mole, or 6.0 × 102 molecules; the mass of one molecule is m = 2.3 × 10-20 g. The value of kT at 300°K (27°C) is 4.14 × 10-14g cm/sec?. Therefore,
 (v,})1/2 = 1.3 × 10ª cm/sec.
 ```
+*(Notice the raw OCR scan defect `(V,2> = k1/m,` where the OCR scanner misread $\langle v^2 \rangle = kT/m$ as `k1/m`).*
 
-### 3. Exact Model Output & Audit JSON (`items.jsonl`)
+### 3. Exact Model Output JSON
+```json
+{
+  "verdict": "refuted",
+  "cited": [1],
+  "reason": "The evidence states that the root-mean-square velocity is proportional to the square root of the absolute temperature (v_rms = sqrt(kT/m)). Therefore, lowering the temperature (T) decreases the root-mean-square thermal velocity."
+}
+```
+
+### 4. Exact Final Record in `items.jsonl`
 ```json
 {
   "system": "S1_plain",
@@ -194,12 +252,20 @@ $S_2$ queries atomic, pre-extracted propositions indexed in SQLite FTS5.
 hits = s2_retriever.search("equipartition thermal kinetic energy velocity temperature", k=4)
 # Executes SQLite FTS5 query:
 # SELECT id, doc, page, text, start_char, end_char FROM propositions WHERE text MATCH '...' LIMIT 4;
+
 passages_text = "\n\n".join(f"[{h.id}] ({h.doc} p.{h.pages[0]}):\n{h.text}" for h in hits)
 user_prompt = f"QUERY: {query_text}\n\nLITERATURE CONTEXT:\n{passages_text}"
-res = llm.extract_json(RETRIEVED_SYSTEM_PROMPT, user_prompt, ANSWER_SCHEMA)
+
+res = llm.extract_json(
+    system_prompt="""You are an objective scientific referee. Answer the user query using ONLY the provided literature context.
+For every claim you make, cite the passage ID and provide the exact VERBATIM quote copied from the context.
+Return only valid JSON.""",
+    user_prompt=user_prompt,
+    schema=ANSWER_SCHEMA
+)
 ```
 
-### 2. Exact Retrieved Proposition Payload Delivered to LLM (318 Words)
+### 2. Exact Retrieved Context Payload Delivered to LLM (318 Words)
 ```text
 [c2] (Berg_Random_Walks_in_Biology_1993 p.2):
 A particle at absolute temperature T has, on the average, a kinetic energy associated with movement along each axis of kT/2, where k is Boltzmann's constant.
@@ -208,7 +274,7 @@ A particle at absolute temperature T has, on the average, a kinetic energy assoc
 From this relationship we compute the mean-square velocity, (V,2> = k1/m,
 
 [c4] (Berg_Random_Walks_in_Biology_1993 p.2):
-We can use Eq.1.2 to estimate the instantaneous velocity of a small particle, for example, a molecule of the protein lysozyme... The value of kT at 300°K (27°C) is 4.14 × 10-14g cm/sec?. Therefore, (v,})1/2 = 1.3 × 10ª cm/sec.
+We can use Eq.1.2 to estimate the instantaneous velocity of a small particle, for example, a molecule of the protein lysozyme. Lysozyme has a molecular weight 1.4 × 104g... The value of kT at 300°K (27°C) is 4.14 × 10-14g cm/sec?. Therefore, (v,})1/2 = 1.3 × 10ª cm/sec.
 ```
 
 ### 3. Exact Model Output JSON
@@ -230,7 +296,7 @@ We can use Eq.1.2 to estimate the instantaneous velocity of a small particle, fo
 }
 ```
 
-### 4. Exact Evaluation & Forensic Audit JSON (`items.jsonl`)
+### 4. Exact Evaluation & Forensic Audit Record in `items.jsonl`
 ```json
 {
   "system": "S2_relational",
@@ -308,7 +374,7 @@ $$\text{Node 2: } \mathbf{kT/2} \xrightarrow{\text{derives\_from}} \text{Node 3:
 }
 ```
 
-### 2. Exact Evaluation & Forensic Audit JSON (`items.jsonl`)
+### 2. Exact Evaluation & Forensic Audit Record in `items.jsonl`
 ```json
 {
   "system": "S3_graph",
@@ -362,10 +428,17 @@ $S_{\text{cached}}$ loads raw book slices (Pages 1 to 45) into the prompt cache.
 body, ctx_words = get_cached_book_slice("Berg_Random_Walks_in_Biology_1993", [1, 2, 3])
 # Loads 10,789 words (Berg Chapters 1-3)
 user_prompt = f"QUERY: {query_text}\n\nLITERATURE CONTEXT:\n{body}"
-res = llm.extract_json(RETRIEVED_SYSTEM_PROMPT, user_prompt, ANSWER_SCHEMA)
+
+res = llm.extract_json(
+    system_prompt="""You are an objective scientific referee. Answer the user query using ONLY the provided literature context.
+For every claim you make, cite the passage ID and provide the exact VERBATIM quote copied from the context.
+Return only valid JSON.""",
+    user_prompt=user_prompt,
+    schema=ANSWER_SCHEMA
+)
 ```
 
-### 2. Exact Model Output & Audit JSON (`items.jsonl`)
+### 2. Exact Model Output & Forensic Audit Record in `items.jsonl`
 ```json
 {
   "system": "S_cached",
