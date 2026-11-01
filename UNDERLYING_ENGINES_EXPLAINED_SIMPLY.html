@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Underlying Engines Explained in Simple Terms</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 1.9rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.4rem; margin-top: 1.8rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    h3 { color: #334155; font-size: 1.15rem; margin-top: 1.4rem; }
+    .subtitle { color: #64748b; font-size: 1.05rem; margin-top: -6px; margin-bottom: 24px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      color: #1e3a8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background-color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .concept-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0ea5e9;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .concept-box h4 {
+      margin: 0 0 6px 0;
+      color: #0369a1;
+      font-size: 1.05rem;
+    }
+    .concept-box p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: #334155;
+    }
+    .analogy {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <h1>Underlying Engines Explained in Simple Terms</h1>
+    <div class="subtitle">Demystifying Quote Snapping vs. Entailment Verification</div>
+
+    <blockquote>
+      <strong>Context:</strong> In the attribution comparison, the row <em>"Underlying Engine"</em> defines the computational tools used to verify scientific citations:<br><br>
+      • <strong>Quote Snapping:</strong> <code>Deterministic Python / RegEx, 6-word shingle hashing (&ge; 50%)</code><br>
+      • <strong>Entailment:</strong> <code>Adversarial NLI LLM Critic (T=0.0), Closed-World Prompt</code>
+    </blockquote>
+
+    <h2>Part 1: Quote Snapping Engine Explained</h2>
+
+    <div class="concept-box">
+      <h4>1. Deterministic Python</h4>
+      <p>This is standard, non-AI computer code—like a calculator or basic word processor search. It doesn't use neural networks, so it has <strong>zero chance of hallucinating</strong>. If you run it 10,000 times, it reads the exact textbook file on disk and gives the exact same result every time.</p>
+      <span class="analogy">Analogy: A digital barcode scanner</span>
+    </div>
+
+    <div class="concept-box">
+      <h4>2. RegEx (Regular Expressions)</h4>
+      <p>A text-cleanup tool. Scanned book PDFs often split words with hyphens across lines (<code>ther- \n mal</code>) or use fancy curly quotes (<code>“ ”</code>). RegEx acts like a digital squeegee to strip formatting noise and fix broken hyphenated words so a real quote isn't rejected over a typo.</p>
+      <span class="analogy">Analogy: A squeegee cleaning dirt off a window</span>
+    </div>
+
+    <div class="concept-box">
+      <h4>3. 6-Word Shingle Hashing (&ge; 50%)</h4>
+      <p>Like overlapping shingles on a house roof, the quote is sliced into overlapping 6-word windows (Words 1–6, Words 2–7, Words 3–8). If at least 50% of these 6-word blocks match in a single continuous chunk in the book on disk, the system confirms the passage is authentic and "snaps" to its physical byte coordinates.</p>
+      <span class="analogy">Analogy: Fingerprint matching that tolerates minor smudges</span>
+    </div>
+
+    <h2>Part 2: Entailment Engine Explained</h2>
+
+    <div class="concept-box">
+      <h4>1. Adversarial</h4>
+      <p>Most AI prompts instruct the model to be polite, helpful, and generous. An <strong>adversarial</strong> critic is explicitly told to be a harsh, skeptical referee looking for any logical leap, exaggeration, or bluff. It will not give the student the benefit of the doubt.</p>
+      <span class="analogy">Analogy: A strict DMV inspector or hostile courtroom cross-examiner</span>
+    </div>
+
+    <div class="concept-box">
+      <h4>2. NLI (Natural Language Inference)</h4>
+      <p>The computer science term for strict deductive logic: <em>"If Quote A is true, does Claim B logically have to be true?"</em> It prevents citation bluffing by verifying that the quote actually proves the claim, rather than just being an impressive-sounding sentence from the same chapter.</p>
+      <span class="analogy">Analogy: Deductive logic (Premise &rArr; Conclusion)</span>
+    </div>
+
+    <div class="concept-box">
+      <h4>3. LLM Critic at Temperature Zero ($T = 0.0$)</h4>
+      <p>Temperature controls creativity in AI. At $T = 0.7$, the AI is creative and unpredictable. At <strong>$T = 0.0$</strong>, all randomness is shut off. The AI strictly selects the single most probable, mathematically certain word, guaranteeing consistent verdicts.</p>
+      <span class="analogy">Analogy: A calibrated digital scale that always reads the exact same weight</span>
+    </div>
+
+    <div class="concept-box">
+      <h4>4. Closed-World Prompt</h4>
+      <p>Frontier LLMs have memorized vast amounts of science. If the referee used its background knowledge, it might pass an unrelated quote because it already knows the claim is true from memory! The <strong>closed-world prompt</strong> seals the referee in a box: <em>"You know nothing about the universe except these exact words. If the quote doesn't explicitly prove the claim on its own, you must reject it."</em></p>
+      <span class="analogy">Analogy: A juror instructed by a judge to disregard rumors and evaluate only Exhibit A</span>
+    </div>
+
+    <h2>Summary Cheat Sheet</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Technical Phrase</th>
+          <th>Plain English Meaning</th>
+          <th>Real-World Analogy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Deterministic Python</strong></td>
+          <td>Standard non-AI code running on your CPU</td>
+          <td>A calculator or spreadsheet formula</td>
+        </tr>
+        <tr>
+          <td><strong>RegEx</strong></td>
+          <td>Automated cleanup of OCR line breaks and formatting</td>
+          <td>A squeegee cleaning dirt off a window</td>
+        </tr>
+        <tr>
+          <td><strong>6-Word Shingle (&ge; 50%)</strong></td>
+          <td>Overlapping 6-word blocks matching the book</td>
+          <td>Fingerprint matching with smudge tolerance</td>
+        </tr>
+        <tr>
+          <td><strong>Adversarial Critic</strong></td>
+          <td>An AI prompted to be skeptical, not helpful</td>
+          <td>A strict peer reviewer or inspector</td>
+        </tr>
+        <tr>
+          <td><strong>NLI (Inference)</strong></td>
+          <td>Strict deductive logic: Quote &rArr; Claim</td>
+          <td>A lawyer proving a case beyond reasonable doubt</td>
+        </tr>
+        <tr>
+          <td><strong>Temperature Zero ($T = 0.0$)</strong></td>
+          <td>Zero randomness / zero creative variance</td>
+          <td>A digital scale with calibrated certainty</td>
+        </tr>
+        <tr>
+          <td><strong>Closed-World Prompt</strong></td>
+          <td>Judge is blind to everything except the quote</td>
+          <td>A juror looking strictly at Exhibit A in evidence</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
