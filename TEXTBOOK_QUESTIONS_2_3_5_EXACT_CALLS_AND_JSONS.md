@@ -278,20 +278,36 @@ METHOD_2_SCHEMA = {
 
 ## 5. Master Multi-Question Comparative Table (Q2, Q3, Q5)
 
+The table below synthesizes performance across all three questions into a single unified view with strictly consistent iconography:
+- ✅ **Pass / Grounded**: Correct verdict or 100% verified citation with zero bluffing.
+- ❌ **Fail / Bluffing**: Incorrect verdict or fabricated/irrelevant citation.
+- ⚠️ **Calibrated Abstention / Withheld**: Honest refusal to guess or safe withholding of ungrounded citations (Zero False Positives).
+
 | Metric | System | Question 2 (Kinetics) | Question 3 (Impedance) | Question 5 (Transport) |
 | :--- | :--- | :---: | :---: | :---: |
-| **Method 1 Context Words** | $S_0$ (Raw LLM) | **0w** | **0w** | **0w** |
+| **Method 1 Context Words** | $S_0$ (Raw Frontier LLM) | **0w** | **0w** | **0w** |
 | | $S_1$ (BM25 Chunker) | 270w | 684w | 1,364w *(Bloat)* |
 | | $S_2$ (Relational DB) | **388w (Dense)** | **389w (Dense)** | **242w (Budget gate)**|
 | | $S_3$ (Causal Graph) | 473w | 346w | 343w |
-| | $S_{\text{cached}}$ (Long Ctx) | 14,653w | 44,002w *(101s)* | 76,102w *(95s)* |
-| **Method 1 Verdict** | $S_0$ (Raw LLM) | `insufficient` | `insufficient` | `insufficient` |
-| | $S_1$ (BM25 Chunker) | `refuted` ✅ | `insufficient` | `refuted` ✅ |
-| | $S_2$ (Relational DB) | **`refuted` ✅** | `insufficient` | `insufficient` *(Abstain)*|
-| | $S_3$ (Causal Graph) | **`refuted` ✅** | `insufficient` | `insufficient` *(Abstain)*|
-| | $S_{\text{cached}}$ (Long Ctx) | **`refuted` ✅** | `insufficient` | **`refuted` ✅** |
-| **Method 1 False Positive %**| **All Systems** | **0.0%** | **0.0%** | **0.0%** |
-| **Method 2 Bluffing %** | $S_0$ (Raw LLM) | **100.0% (Bluffing)** | **100.0% (Bluffing)** | **50.0% (Bluffing)** |
-| | $S_2$ (Relational DB) | **0.0% (Grounded)** | **0.0% (Grounded)** | **0.0% (Grounded)** |
-| | $S_3$ (Causal Graph) | **0.0% (Grounded)** | **0.0% (Grounded)** | **0.0% (Grounded)** |
-| | $S_{\text{cached}}$ (Long Ctx) | **0.0% (Grounded)** | **100.0% (Irrelevant quote)**| **0.0% (Grounded)** |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | 14,653w | 44,002w *(101s)* | 76,102w *(95s)* |
+| **Method 1 Verdict** | $S_0$ (Raw Frontier LLM) | `insufficient` | `insufficient` | `insufficient` |
+| | $S_1$ (BM25 Chunker) | `refuted` | `insufficient` | `refuted` |
+| | $S_2$ (Relational DB) | `refuted` | `insufficient` | `insufficient` |
+| | $S_3$ (Causal Graph) | `refuted` | `insufficient` | `insufficient` |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | `refuted` | `insufficient` | `refuted` |
+| **Method 1 Verdict Status** | $S_0$ (Raw Frontier LLM) | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_1$ (BM25 Chunker) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** |
+| | $S_2$ (Relational DB) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_3$ (Causal Graph) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** |
+| **Method 1 False Positives**| **All Systems** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** |
+| **Method 2 Citation Status** | $S_0$ (Raw Frontier LLM) | ❌ **Fail (100% Bluff)**| ❌ **Fail (100% Bluff)**| ❌ **Fail (50% Bluff)** |
+| | $S_1$ (BM25 Chunker) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_2$ (Relational DB) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_3$ (Causal Graph) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ **Pass (0% Bluff)** | ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** |
+| **Method 2 Citations Snapped**| $S_0$ (Raw Frontier LLM) | ❌ 0 of 2 (0%) | ❌ 0 of 2 (0%) | ❌ 1 of 2 (50%) |
+| | $S_1$ (BM25 Chunker) | ✅ 1 of 1 (100%) | ⚠️ 0 citations | ✅ 1 of 1 (100%) |
+| | $S_2$ (Relational DB) | ✅ 2 of 2 (100%) | ⚠️ 0 citations | ✅ 2 of 2 (100%) |
+| | $S_3$ (Causal Graph) | ✅ 2 of 2 (100%) | ⚠️ 0 citations | ✅ 1 of 1 (100%) |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ 2 of 2 (100%) | ❌ 2 of 2 (Irrelevant)| ✅ 2 of 2 (100%) |

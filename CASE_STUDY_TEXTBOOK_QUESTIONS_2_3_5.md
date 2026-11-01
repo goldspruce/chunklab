@@ -5,6 +5,10 @@
 > **Evaluation Frameworks**:  
 > 1. **Method 1: The Original Sanity Engine Benchmark (`run_eval.py` / `eval_cached.py`)** — 3-Way Deductive Hypothesis Verification (`SUPPORTED`, `REFUTED`, `INSUFFICIENT`).  
 > 2. **Method 2: The Allen Institute ScholarQA Benchmark (`run_scholarqa_bakeoff.py`)** — Forensic Quote Attribution & Citation Bluffing Audit.  
+> **Standardized Status Indicators**:  
+> - ✅ **Pass / Grounded**: Correct verdict or 100% verified citation with zero bluffing.  
+> - ❌ **Fail / Bluffing**: Incorrect verdict or fabricated/irrelevant citation.  
+> - ⚠️ **Calibrated Abstention / Withheld**: Honest refusal to guess or safe withholding of ungrounded citations (Zero False Positives).  
 > **Date**: November 2026
 
 ---
@@ -24,7 +28,7 @@ Evaluating platforms on a single question can create false impressions. By exami
 ├──────────┼─────────────────────────────┼──────────────────────────┼──────────────────────────────┤
 │ Item Q3  │ Wave Mechanics / Impedance  │ Regime B: Annotation     │ All engines safely abstain;  │
 │          │ (Feynman Vol. 1, p. 819)    │ Trap & Safety Abstention │ 0% false positives; S_cached │
-│          │                             │                          │ lost in 44k words.           │
+│          │                             │                          │ bluffs with irrelevant quote.│
 ├──────────┼─────────────────────────────┼──────────────────────────┼──────────────────────────────┤
 │ Item Q5  │ Cell Biology / Transport    │ Regime C: Context Budget │ S1 (1,364w) & S_cached       │
 │          │ (Alberts 2022, p. 612)      │ & Granularity Divergence │ (76,102w) answer; S2 & S3    │
@@ -34,21 +38,23 @@ Evaluating platforms on a single question can create false impressions. By exami
 
 ---
 
-## 2. Master Comparative Scorecard: Questions 2, 3, and 5
+## 2. Master Comparative Scorecards: Questions 2, 3, and 5
 
 ### Question 2: Thermal Velocity & Equipartition
 * **Hypothesis (`q02`)**: *"Lowering the temperature of an aqueous solution increases the root-mean-square thermal velocity of dissolved proteins like lysozyme."*
 * **Ground Truth**: `REFUTED` ($v_{\text{rms}} = \sqrt{kT/m} \implies v_{\text{rms}} \propto \sqrt{T}$; lowering $T$ decreases thermal velocity).
 
-| Evaluation Dimension | Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
+| Evaluation Dimension | Metric Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Method 1: Context Payload** | `run_eval.py` | **0w** | 270w | **388w** | 473w | 14,653w *(38× bloat)* |
-| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `refuted` | **`refuted`** | **`refuted`** | **`refuted`** |
-| **Method 1: Verdict Accuracy**| `run_eval.py` | ❌ 0% (Abstained) | ✅ **100% (Correct)**| ✅ **100% (Correct)**| ✅ **100% (Correct)**| ✅ **100% (Correct)**|
-| **Method 1: Page Recall** | `run_eval.py` | 0.00 | **1.00** | **1.00** | **1.00** | **1.00** |
-| **Method 2: Citations Made** | `run_scholarqa`| 2 citations | 1 citation | **2 citations** | **2 citations** | 2 citations |
-| **Method 2: Gate 1 Snapping**| `run_scholarqa`| ❌ **0% (2/2 Fake)** | ✅ **100% (1/1 Real)**| ✅ **100% (2/2 Real)**| ✅ **100% (2/2 Real)**| ✅ **100% (2/2 Real)**|
-| **Method 2: Citation Bluffing**| `run_scholarqa`| **100.0% (Bluffing)** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |
+| **Method 1 Context Words** | `run_eval.py` | **0w** | 270w | **388w** | 473w | 14,653w *(38× bloat)* |
+| **Method 1 Reader Verdict** | `run_eval.py` | `insufficient` | `refuted` | `refuted` | `refuted` | `refuted` |
+| **Method 1 Verdict Status** | `run_eval.py` | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** | ✅ **Pass (Correct)** | ✅ **Pass (Correct)** | ✅ **Pass (Correct)** |
+| **Method 1 Page Recall** | `run_eval.py` | 0.00 | **1.00** | **1.00** | **1.00** | **1.00** |
+| **Method 2 Citations Made** | `run_scholarqa`| 2 citations | 1 citation | 2 citations | 2 citations | 2 citations |
+| **Method 2 Gate 1 (Snapping)**| `run_scholarqa`| ❌ **Fail (0/2 Fake)** | ✅ **Pass (1/1 Real)** | ✅ **Pass (2/2 Real)** | ✅ **Pass (2/2 Real)** | ✅ **Pass (2/2 Real)** |
+| **Method 2 Gate 2 (Entail)** | `run_scholarqa`| ❌ **Fail (0% Sound)** | ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**|
+| **Method 2 Bluffing Status**| `run_scholarqa`| ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** |
+| **Method 2 Query Latency** | `run_scholarqa`| 3.8s | **1.8s** | **1.8s** | 4.2s | 12.4s |
 
 ---
 
@@ -56,16 +62,18 @@ Evaluating platforms on a single question can create false impressions. By exami
 * **Hypothesis (`q03`)**: *"Acoustic reflection at a boundary between two media depends on the difference between their characteristic acoustic impedances."*
 * **Ground Truth**: `SUPPORTED` (Reflection and transmission coefficients are functions of characteristic acoustic impedance ratios).
 
-| Evaluation Dimension | Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
+| Evaluation Dimension | Metric Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Method 1: Context Payload** | `run_eval.py` | **0w** | 684w | **389w** | 346w | 44,002w *(Severe bloat)* |
-| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `insufficient` | `insufficient` | `insufficient` | `insufficient` |
-| **Method 1: Verdict Accuracy**| `run_eval.py` | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) |
-| **Method 1: False Positive Rate**| `run_eval.py` | **0.0%** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |
-| **Method 1: Calibrated Honesty**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |
-| **Method 2: Citations Made** | `run_scholarqa`| 2 citations | 0 citations | 0 citations | 0 citations | 2 citations |
-| **Method 2: Gate 1 Snapping**| `run_scholarqa`| ❌ **0% (2/2 Fake)** | N/A (Withheld) | N/A (Withheld) | N/A (Withheld) | ✅ **100% (2/2 Real)** |
-| **Method 2: Citation Bluffing**| `run_scholarqa`| **100.0% (Bluffing)** | **0.0%** | **0.0%** | **0.0%** | **100.0% (Irrelevant quote)**|
+| **Method 1 Context Words** | `run_eval.py` | **0w** | 684w | **389w** | 346w | 44,002w *(Severe bloat)* |
+| **Method 1 Reader Verdict** | `run_eval.py` | `insufficient` | `insufficient` | `insufficient` | `insufficient` | `insufficient` |
+| **Method 1 Verdict Status** | `run_eval.py` | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| **Method 1 False Positives**| `run_eval.py` | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** |
+| **Method 1 Page Recall** | `run_eval.py` | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 *(Lost in 44k words)*|
+| **Method 2 Citations Made** | `run_scholarqa`| 2 citations | 0 citations | 0 citations | 0 citations | 2 citations |
+| **Method 2 Gate 1 (Snapping)**| `run_scholarqa`| ❌ **Fail (0/2 Fake)** | ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ✅ **Pass (2/2 Real)** |
+| **Method 2 Gate 2 (Entail)** | `run_scholarqa`| ❌ **Fail (0% Sound)** | ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ❌ **Fail (0% Sound)** |
+| **Method 2 Bluffing Status**| `run_scholarqa`| ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ❌ **Fail (100% Bluff)**|
+| **Method 2 Query Latency** | `run_scholarqa`| 5.8s | **1.2s** | **1.7s** | 3.4s | 100.97s *(Severe lag)* |
 
 ---
 
@@ -73,77 +81,50 @@ Evaluating platforms on a single question can create false impressions. By exami
 * **Hypothesis (`q05`)**: *"Passive diffusion across a lipid bilayer requires direct metabolic input from ATP hydrolysis."*
 * **Ground Truth**: `REFUTED` (Passive transport is spontaneous down concentration/electrochemical gradients without ATP input).
 
-| Evaluation Dimension | Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
+| Evaluation Dimension | Metric Source | $S_0$ (Raw LLM) | $S_1$ (BM25) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Long Context) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Method 1: Context Payload** | `run_eval.py` | **0w** | 1,364w | **242w (Budget gate)**| 343w | 76,102w *(Massive bloat)* |
-| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `refuted` | `insufficient` *(Abstain)*| `insufficient` *(Abstain)*| `refuted` |
-| **Method 1: Verdict Accuracy**| `run_eval.py` | ❌ 0% (Abstained) | ✅ **100% (Correct)**| ❌ 0% (Abstained) | ❌ 0% (Abstained) | ✅ **100% (Correct)**|
-| **Method 1: False Positive Rate**| `run_eval.py` | **0.0%** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |
-| **Method 1: Calibrated Honesty**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |
-| **Method 1: Latency** | `run_eval.py` | 1.8s | 2.1s | **1.2s** | 3.5s | 95.24s *(Painfully slow)* |
-| **Method 2: Citations Made** | `run_scholarqa`| 2 citations | 1 citation | **2 citations** | 1 citation | 2 citations |
-| **Method 2: Gate 1 Snapping**| `run_scholarqa`| ❌ **50% (1/2 Fake)** | ✅ **100% Real** | ✅ **100% Real** | ✅ **100% Real** | ✅ **100% Real** |
-| **Method 2: Citation Bluffing**| `run_scholarqa`| **50.0%** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |
+| **Method 1 Context Words** | `run_eval.py` | **0w** | 1,364w *(Bloat)* | **242w (Budget gate)**| 343w | 76,102w *(Massive bloat)* |
+| **Method 1 Reader Verdict** | `run_eval.py` | `insufficient` | `refuted` | `insufficient` | `insufficient` | `refuted` |
+| **Method 1 Verdict Status** | `run_eval.py` | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** |
+| **Method 1 False Positives**| `run_eval.py` | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** |
+| **Method 1 Query Latency** | `run_eval.py` | 1.8s | 2.1s | **1.2s (Fastest)** | 3.5s | 95.24s *(Painfully slow)* |
+| **Method 2 Citations Made** | `run_scholarqa`| 2 citations | 1 citation | 2 citations | 1 citation | 2 citations |
+| **Method 2 Gate 1 (Snapping)**| `run_scholarqa`| ❌ **Fail (1/2 Fake)** | ✅ **Pass (1/1 Real)** | ✅ **Pass (2/2 Real)** | ✅ **Pass (1/1 Real)** | ✅ **Pass (2/2 Real)** |
+| **Method 2 Gate 2 (Entail)** | `run_scholarqa`| ❌ **Fail (0% Sound)** | ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**|
+| **Method 2 Bluffing Status**| `run_scholarqa`| ❌ **Fail (50% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** |
+| **Method 2 Context Footprint**| `run_scholarqa`| **0w** | 1,364w | **886w** | 967w | 76,102w |
 
 ---
 
-## 3. Deep Architectural Autopsy on Question 2 (Kinetics)
+## 3. Master Multi-Question Comparative Table (Q2, Q3, Q5)
 
-In Question 2, the derivation is clean, compact, and located on Page 2 of *Berg (1993)*:
-* **Why all retrievers succeeded**: $S_1, S_2, S_3,$ and $S_{\text{cached}}$ all retrieved the exact equipartition derivation within their first search step.
-* **Why $S_2$ dominates**: $S_2$ delivered the exact mathematical evidence in **388 words**, with zero fluff, achieving **100% precision and 0.0% citation bluffing**.
-* **The $S_0$ Contrast**: With 0 words of context, $S_0$ honestly abstained in Method 1 (`insufficient`), but when asked for citations in Method 2, it fabricated citations to Pathria and Berg out of thin air (**100% Citation Bluffing**).
+The table below synthesizes performance across all three questions into a single unified view with consistent iconography:
 
----
-
-## 4. Deep Architectural Autopsy on Question 3 (Wave Mechanics)
-
-In Question 3, we encounter the **Curator Annotation Trap & Needle-in-a-Haystack Obstacle**:
-* **The Annotation Bug**: In `eval.jsonl`, the gold evidence was cited as `Feynman Vol. 1, page: 819`. But in the textbook, Page 819 is in Chapter 45 (Clapeyron equation and blackbody radiation). The actual physical discussion of acoustic impedance reflection lives in Chapter 38 / Chapter 47.
-* **$S_2$ Precision**: $S_2$ searched for propositions near the annotated page, retrieved 3 propositions discussing the Clausius-Clapeyron equation and beta sheets, realized that *none of them discussed acoustic impedance*, and safely returned `insufficient`.
-* **$S_{\text{cached}}$ Breakdown**: Shoving **44,002 words** into context yielded zero recall. Gemini Flash spent **100.97 seconds** scanning 90 pages, failed to attend to the impedance formula, and outputted `insufficient`.
-* **The Epistemic Takeaway**: Every single engine refused to hallucinate. The **False Positive Rate was exactly 0.0%**.
-
----
-
-## 5. Deep Architectural Autopsy on Question 5 (Membrane Transport)
-
-Question 5 illustrates the **Granularity vs. Context Budget Dilemma**:
-* **What Happened**: The hypothesis tested whether passive transport across a lipid bilayer requires direct ATP hydrolysis.
-* **Why $S_1$ and $S_{\text{cached}}$ Won on Accuracy**:
-  - $S_1$ pulled a massive **1,364-word chunk** from Alberts Chapter 11.
-  - $S_{\text{cached}}$ loaded a colossal **76,102-word** context slice into Gemini.
-  - Because they consumed vast word budgets, both systems caught the paragraph explaining that passive transport is spontaneous down concentration gradients without metabolic energy, correctly outputting `refuted`.
-* **Why $S_2$ and $S_3$ Safely Abstained**:
-  - $S_2$ strictly enforces a sub-400-word context budget to minimize LLM token costs and eliminate noise.
-  - It retrieved 4 atomic claims (242 words) defining diffusion as thermal Brownian motion.
-  - Because the explicit negation of ATP hydrolysis was ranked in claim #5 (just past the 242-word cutoff), $S_2$ saw evidence that defined diffusion but did not mention ATP.
-  - Under Sanity Engine's NLI reader prompt, $S_2$ obeyed the rule: *"If the evidence neither confirms nor contradicts, you MUST answer 'insufficient'."*
-  - It safely abstained with **zero false positives**.
-* **The Engineering Trade-off**:
-  - $S_{\text{cached}}$ required **76,102 words** and **95.24 seconds** of latency.
-  - $S_2$ consumed **242 words** and completed in **1.2 seconds**.
-  - Increasing $S_2$'s context budget from 400 words to 800 words instantly retrieves claim #5, achieving 100% accuracy while still consuming **98.9% fewer tokens than Long Context**.
-
----
-
-## 6. Synthesis: The Complete Epistemic Picture Across Q2, Q3, and Q5
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                             SYSTEM BEHAVIOR PATTERNS ACROSS Q2, Q3, Q5                           │
-├─────────────────────┬──────────────────────────┬─────────────────────────┬───────────────────────┤
-│ SYSTEM              │ RECALL PROFILE           │ EFFICIENCY PROFILE      │ SAFETY PROFILE        │
-├─────────────────────┼──────────────────────────┼─────────────────────────┼───────────────────────┤
-│ S0 (Raw LLM)        │ 0.00 across all queries  │ 0 words; 1.8s           │ 100% Bluffing when    │
-│                     │                          │                         │ forced to cite        │
-│ S1 (BM25 Chunker)   │ High on wide keywords    │ 270w – 1,364w           │ Vulnerable to chunk   │
-│                     │ (0.25 – 1.00)            │ 0.6s – 2.1s             │ boundary cuts         │
-│ S2 (Relational DB)  │ Highest precision per    │ 193w – 388w (Dense)     │ 100% Precision;       │
-│                     │ token (0.55 overall)     │ 1.2s – 2.1s (Fastest)   │ 0.0% Bluffing         │
-│ S3 (Causal Graph)   │ Selective causal paths   │ 343w – 473w             │ Hyper-conservative;   │
-│                     │ (0.35 overall)           │ 2.4s – 4.2s             │ 0.0% Bluffing         │
-│ S_cached (Long Ctx) │ Severe attention bloat   │ 14,653w – 76,102w       │ 100s query latency;   │
-│                     │ (0.20 overall)           │ 74s – 101s (Unusable)   │ Lost in the Middle    │
-└─────────────────────┴──────────────────────────┴─────────────────────────┴───────────────────────┘
-```
+| Evaluation Metric | Platform | Question 2 (Kinetics) | Question 3 (Impedance) | Question 5 (Transport) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Method 1 Context Words** | $S_0$ (Raw Frontier LLM) | **0w** | **0w** | **0w** |
+| | $S_1$ (BM25 Chunker) | 270w | 684w | 1,364w *(Bloat)* |
+| | $S_2$ (Relational DB) | **388w (Dense)** | **389w (Dense)** | **242w (Budget gate)**|
+| | $S_3$ (Causal Graph) | 473w | 346w | 343w |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | 14,653w | 44,002w *(101s)* | 76,102w *(95s)* |
+| **Method 1 Verdict** | $S_0$ (Raw Frontier LLM) | `insufficient` | `insufficient` | `insufficient` |
+| | $S_1$ (BM25 Chunker) | `refuted` | `insufficient` | `refuted` |
+| | $S_2$ (Relational DB) | `refuted` | `insufficient` | `insufficient` |
+| | $S_3$ (Causal Graph) | `refuted` | `insufficient` | `insufficient` |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | `refuted` | `insufficient` | `refuted` |
+| **Method 1 Status** | $S_0$ (Raw Frontier LLM) | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_1$ (BM25 Chunker) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** |
+| | $S_2$ (Relational DB) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_3$ (Causal Graph) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ **Pass (Correct)** | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** |
+| **Method 1 False Positives**| **All Systems** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** |
+| **Method 2 Citation Status** | $S_0$ (Raw Frontier LLM) | ❌ **Fail (100% Bluff)**| ❌ **Fail (100% Bluff)**| ❌ **Fail (50% Bluff)** |
+| | $S_1$ (BM25 Chunker) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_2$ (Relational DB) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_3$ (Causal Graph) | ✅ **Pass (0% Bluff)** | ⚠️ **Withheld (Safe)** | ✅ **Pass (0% Bluff)** |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ **Pass (0% Bluff)** | ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** |
+| **Method 2 Citations Snapped**| $S_0$ (Raw Frontier LLM) | ❌ 0 of 2 (0%) | ❌ 0 of 2 (0%) | ❌ 1 of 2 (50%) |
+| | $S_1$ (BM25 Chunker) | ✅ 1 of 1 (100%) | ⚠️ 0 citations | ✅ 1 of 1 (100%) |
+| | $S_2$ (Relational DB) | ✅ 2 of 2 (100%) | ⚠️ 0 citations | ✅ 2 of 2 (100%) |
+| | $S_3$ (Causal Graph) | ✅ 2 of 2 (100%) | ⚠️ 0 citations | ✅ 1 of 1 (100%) |
+| | $S_{\text{cached}}$ (Gemini Long Ctx) | ✅ 2 of 2 (100%) | ❌ 2 of 2 (Irrelevant)| ✅ 2 of 2 (100%) |

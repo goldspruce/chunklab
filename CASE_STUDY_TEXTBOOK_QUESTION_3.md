@@ -14,17 +14,16 @@
 
 | Evaluation Dimension | Metric Source | $S_0$ (Raw Frontier LLM) | $S_1$ (BM25 Chunker) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\text{cached}}$ (Gemini Long Context) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Method 1: Retrieval Call** | `run_eval.py` | None (`hits = []`) | BM25 on raw chunks | SQLite FTS5 proposition join | Causal graph path traversal | Slice prompt caching (90 pages) |
-| **Method 1: Context Payload** | `run_eval.py` | **0w** | 684w | **389w (Dense)** | 346w | 44,002w *(Severe bloat)* |
-| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `insufficient` | `insufficient` | `insufficient` | `insufficient` |
-| **Method 1: Gold Verdict** | `eval.jsonl` | `supported` | `supported` | `supported` | `supported` | `supported` |
-| **Method 1: Verdict Accuracy**| `run_eval.py` | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) | ❌ 0% (Abstained) |
-| **Method 1: False Positive Rate**| `run_eval.py` | **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**|
-| **Method 1: Calibrated Honesty**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |
-| **Method 2: Citations Made** | `run_scholarqa`| 2 citations | 0 citations | 0 citations | 0 citations | 2 citations |
-| **Method 2: Gate 1 Snapping**| `run_scholarqa`| ❌ **0.0% (2/2 Fake)** | N/A (Withheld) | N/A (Withheld) | N/A (Withheld) | ✅ **100.0% (2/2 Real)** |
-| **Method 2: Citation Bluffing**| `run_scholarqa`| **100.0% (Bluffing)** | **0.0%** | **0.0%** | **0.0%** | **100.0% (Irrelevant quote)**|
-| **Method 2: Latency** | `run_scholarqa`| 5.8s | **1.2s** | **1.7s** | 3.4s | 100.97s *(Severe lag)* |
+| **Method 1 Context Words** | `run_eval.py` | **0w** | 684w | **389w (Dense)** | 346w | 44,002w *(Severe bloat)* |
+| **Method 1 Reader Verdict** | `run_eval.py` | `insufficient` | `insufficient` | `insufficient` | `insufficient` | `insufficient` |
+| **Method 1 Verdict Status** | `run_eval.py` | ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**| ⚠️ **Abstained (Safe)**|
+| **Method 1 False Positives**| `run_eval.py` | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** | ✅ **0.0% (Zero)** |
+| **Method 1 Calibrated Honesty**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |
+| **Method 2 Citations Made** | `run_scholarqa`| 2 citations | 0 citations | 0 citations | 0 citations | 2 citations |
+| **Method 2 Gate 1 (Snapping)**| `run_scholarqa`| ❌ **Fail (0/2 Fake)** | ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ✅ **Pass (2/2 Real)** |
+| **Method 2 Gate 2 (Entail)** | `run_scholarqa`| ❌ **Fail (0% Sound)** | ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ⚠️ **Withheld (Safe)**| ❌ **Fail (0% Sound)** |
+| **Method 2 Bluffing Status**| `run_scholarqa`| ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ❌ **Fail (100% Bluff)**|
+| **Method 2 Latency** | `run_scholarqa`| 5.8s | **1.2s** | **1.7s** | 3.4s | 100.97s *(Severe lag)* |
 
 ---
 

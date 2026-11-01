@@ -46,13 +46,13 @@ The table below contrasts all five platforms across both benchmark methodologies
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Method 1: Retrieval Call** | `run_eval.py` | None (`hits = []`) | BM25 on raw chunks | SQLite FTS5 proposition join | Causal graph path traversal | Slice prompt caching (90 pages) |
 | **Method 1: Context Payload** | `run_eval.py` | **0w** | 270w | **388w** | 473w | 14,653w *(38× bloat)* |
-| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` *(Abstain)*| `refuted` | **`refuted`** | **`refuted`** | **`refuted`** |
-| **Method 1: Verdict Accuracy**| `run_eval.py` | ❌ Incorrect (Abstained)| ✅ **Correct** | ✅ **Correct** | ✅ **Correct** | ✅ **Correct** |
+| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `refuted` | `refuted` | `refuted` | `refuted` |
+| **Method 1: Verdict Status** | `run_eval.py` | ⚠️ **Abstained (Safe)**| ✅ **Pass (Correct)** | ✅ **Pass (Correct)** | ✅ **Pass (Correct)** | ✅ **Pass (Correct)** |
 | **Method 1: Page Recall** | `run_eval.py` | 0.00 | **1.00** | **1.00** | **1.00** | **1.00** |
 | **Method 2: Citations Made** | `run_scholarqa_bakeoff.py`| 2 citations | 1 citation | **2 citations** | **2 citations** | 2 citations |
-| **Method 2: Gate 1 Snapping**| `run_scholarqa_bakeoff.py`| ❌ **0.0% (2/2 Fake)** | ✅ **100.0% (1/1 Real)**| ✅ **100.0% (2/2 Real)**| ✅ **100.0% (2/2 Real)**| ✅ **100.0% (2/2 Real)**|
-| **Method 2: Gate 2 Entailment**| `run_scholarqa_bakeoff.py`| ❌ **0.0% Sound** | ✅ **100.0% Sound** | ✅ **100.0% Sound** | ✅ **100.0% Sound** | ✅ **100.0% Sound** |
-| **Method 2: Citation Bluffing**| `run_scholarqa_bakeoff.py`| **100.0% (Extreme)** | **0.0%** | **0.0%** | **0.0%** | **0.0%** |
+| **Method 2: Gate 1 Snapping**| `run_scholarqa_bakeoff.py`| ❌ **Fail (0/2 Fake)** | ✅ **Pass (1/1 Real)** | ✅ **Pass (2/2 Real)** | ✅ **Pass (2/2 Real)** | ✅ **Pass (2/2 Real)** |
+| **Method 2: Gate 2 Entailment**| `run_scholarqa_bakeoff.py`| ❌ **Fail (0% Sound)** | ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**| ✅ **Pass (100% Sound)**|
+| **Method 2: Bluffing Status**| `run_scholarqa_bakeoff.py`| ❌ **Fail (100% Bluff)**| ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** | ✅ **Pass (0% Bluff)** |
 | **Method 2: Context Footprint**| `run_scholarqa_bakeoff.py`| **0w** | 270w | **318w (Dense truth)** | 821w | 10,789w *(34× bloat)* |
 | **Method 2: Latency** | `run_scholarqa_bakeoff.py`| 3.8s | **1.8s** | **1.8s** | 4.2s | 12.4s |
 
