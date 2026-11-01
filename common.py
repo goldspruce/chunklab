@@ -1,4 +1,5 @@
 """Shared utilities for chunklab: paths, text processing, BM25, and page loading."""
+from __future__ import annotations
 import glob
 import math
 import os
