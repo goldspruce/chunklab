@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Why Gate 1 (Snapping) and Gate 2 (Entailment) Are Displayed Separately</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 880px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 44px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 1.9rem; margin-bottom: 0.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.4rem; margin-top: 1.8rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    .subtitle { color: #64748b; font-size: 1.05rem; margin-top: -6px; margin-bottom: 24px; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.2rem 0;
+      padding: 12px 18px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      color: #1e3a8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .card-box {
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .box-gate1 { background-color: #eff6ff; border-color: #93c5fd; }
+    .box-gate2 { background-color: #faf5ff; border-color: #d8b4fe; }
+    .card-box h4 { margin: 0 0 6px 0; font-size: 1.05rem; }
+    .card-box p { margin: 0; font-size: 0.90rem; color: #475569; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge-fail { background-color: #fee2e2; color: #991b1b; }
+    .badge-pass { background-color: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <h1>Why Gate 1 and Gate 2 Are Displayed Separately</h1>
+    <div class="subtitle">Both are Integral Parts of Method 2 (The Allen Institute ScholarQA Audit)</div>
+
+    <blockquote>
+      <strong>Direct Answer:</strong> You are 100% right—they are both sub-components of <strong>Method 2</strong>! Notice the headers in the scorecard: they are explicitly labeled <code>Method 2 Gate 1 (Snapping)</code> and <code>Method 2 Gate 2 (Entail)</code>. They are listed on separate rows so you can see whether an AI failed due to <strong>Citation Hallucination</strong> (fake quote) or <strong>Citation Bluffing</strong> (irrelevant quote).
+    </blockquote>
+
+    <h2>1. The Two Sequential Gates of Method 2</h2>
+    <div class="card-grid">
+      <div class="card-box box-gate1">
+        <h4 style="color: #1e40af;">Method 2 Gate 1: Quote Snapping</h4>
+        <p><strong>Core Question:</strong> <em>"Did the author physically write these words?"</em><br>
+        <strong>Failure Mode:</strong> <span class="badge badge-fail">Citation Hallucination</span> (Quote was synthesized from memory and doesn't exist on disk).</p>
+      </div>
+      <div class="card-box box-gate2">
+        <h4 style="color: #6b21a8;">Method 2 Gate 2: Entailment</h4>
+        <p><strong>Core Question:</strong> <em>"Does this quote actually prove what the AI claims?"</em><br>
+        <strong>Failure Mode:</strong> <span class="badge badge-fail">Citation Bluffing</span> (Quote is real text, but completely irrelevant to the claim).</p>
+      </div>
+    </div>
+
+    <h2>2. Why Combining Them Conceals Critical Failures</h2>
+    <p>If the table only showed a single merged "Method 2" score, you would be unable to diagnose <em>why</em> a system failed:</p>
+    <ul>
+      <li><strong>Unassisted Frontier Model ($S_0$):</strong> Fails <strong>Gate 1</strong>. It invents quotes out of thin air. It never even reaches Gate 2.</li>
+      <li><strong>Long-Context Model ($S_{\text{cached}}$ on Question 3):</strong> Passes <strong>Gate 1</strong> (100% real textbook text from Page 848), but fails <strong>Gate 2</strong> (it cited adiabatic sound speed to "prove" acoustic boundary reflection). It pulled a <strong>100% Citation Bluff</strong>!</li>
+    </ul>
+
+    <h2>3. Summary Table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Evaluation Gate</th>
+          <th>What it Measures</th>
+          <th>What Failure Looks Like</th>
+          <th>Benchmark Case</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Method 2 Gate 1 (Snapping)</strong></td>
+          <td>Physical disk provenance</td>
+          <td>Fabricated / Hallucinated Quote</td>
+          <td>$S_0$ making up quotes from Berg</td>
+        </tr>
+        <tr>
+          <td><strong>Method 2 Gate 2 (Entail)</strong></td>
+          <td>Logical & deductive support</td>
+          <td>Citation Bluffing (Real quote, wrong fact)</td>
+          <td>$S_{\text{cached}}$ citing sound speed for boundary reflection</td>
+        </tr>
+        <tr>
+          <td><strong>Combined Method 2</strong></td>
+          <td>Total Attribution Veracity</td>
+          <td>Unverifiable or dishonest claim</td>
+          <td>Requires passing <strong>BOTH</strong> Gate 1 and Gate 2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
