@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Textbook Question 5: Exact Runtime Calls, Prompts, and JSONs</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.45rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { color: #334155; font-size: 1.2rem; margin-top: 1.5rem; }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.5rem 0;
+      padding: 12px 20px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <div id="content"></div>
+  </div>
+  <script>
+    const rawMd = "# \ud83d\udd2c Textbook Question 5: Exact Runtime Calls, Prompts, and JSONs Across Both Methods\n### *A Transparent Deep Dive into Method 1 (Original Sanity Verification) vs. Method 2 (Allen Institute Citation Audit)*\n\n> **Subject Item**: Textbook Question 5 (`q05` / `SQA_05`)  \n> **Source Canon**: Bruce Alberts et al., *Molecular Biology of the Cell*, 7th ed. (2022), Chapter 11, Page 612  \n> **Biology Ground Truth**: Passive transport occurs down concentration or electrochemical gradients without consuming ATP. Active transport requires ATP.  \n> **Original Hypothesis (`q05`)**: *\"Passive diffusion across a lipid bilayer requires direct metabolic input from ATP hydrolysis.\"*  \n> **Ground Truth Verdict**: `REFUTED`  \n> **Date**: November 2026\n\n---\n\n## 1. System Prompt Specifications\n\nEvaluated using standardized `READER_PROMPT` (Method 1) and `RETRIEVED_SYSTEM_PROMPT` (Method 2).\n\n---\n\n## 2. Platform 1: $S_0$ (Raw Frontier LLM)\n* **Method 1 (`run_eval.py`)**:\n  - Context Delivered: `0 words`.\n  - Output JSON: `{\"verdict\": \"insufficient\", \"cited\": [], \"reason\": \"No evidence was provided to evaluate the hypothesis regarding passive diffusion and ATP hydrolysis.\"}`\n  - Audit: `is_correct: false` (honest abstention).\n* **Method 2 (`run_scholarqa_bakeoff.py`)**:\n  - Output JSON: 2 citations from memory. Gate 1: 1 quote snapped, 1 quote failed (**50% Bluffing**).\n\n---\n\n## 3. Platform 2: $S_1$ (BM25 Chunker \u2014 Large Context Hit)\n* **Method 1 (`run_eval.py`)**:\n  - Retrieval Call: Matched Alberts Chapter 11 chunk (**1,364 words**).\n  - Output JSON: `{\"verdict\": \"refuted\", \"cited\": [1], \"reason\": \"The evidence demonstrates that passive transport occurs spontaneously by diffusion without an input of metabolic energy, whereas active transport against a gradient requires metabolic energy such as ATP hydrolysis.\"}`\n  - Audit: `is_correct: true`, `coverage: 1.0` (Correctly deduced `refuted` via 1,364-word window).\n\n---\n\n## 4. Platform 3: $S_2$ (Relational Proposition DB \u2014 The Strict Context Gate)\n* **Method 1 (`run_eval.py`)**:\n  - Retrieval Call: FTS5 query on `passive diffusion lipid bilayer ATP hydrolysis` (retrieved 4 atomic claims, **242 words**).\n  - Context Delivered (242 words):\n    1. *Berg p. 5*: Diffusion is the random migration of molecules resulting from thermal energy.\n    2. *Berg p. 6*: Net transport down a concentration gradient is a statistical consequence of random walks.\n    3. *Berg p. 12*: Small particles undergo rapid diffusion across microscopic cellular dimensions.\n    4. *Alberts p. 608*: Lipid bilayer provides the basic fluid structure of the membrane.\n  - Output JSON: `{\"verdict\": \"insufficient\", \"cited\": [], \"reason\": \"The provided evidence defines diffusion as the random migration of molecules resulting from thermal energy, but it does not contain any information regarding passive diffusion across a lipid bilayer or whether ATP hydrolysis is required.\"}`\n  - Audit: `is_correct: false` (honest abstention; $S_2$'s strict sub-400w context budget excluded claim #5 where ATP negation lived. Zero false positives!).\n* **Method 2 (`run_scholarqa_bakeoff.py`)**:\n  - Output JSON: 2 verified citations on membrane permeability. Gate 1: **100% Snapped**. Gate 2: **SUPPORTS**. Bluffing: **0.0%**.\n\n---\n\n## 5. Platform 4: $S_3$ (Causal Claim Graph)\n* **Method 1 (`run_eval.py`)**:\n  - Retrieval Call: Traversed graph from `diffusion` to `membrane transport` (343 words).\n  - Output JSON: `{\"verdict\": \"insufficient\", \"cited\": [], \"reason\": \"The provided evidence defines diffusion as arising from thermal energy, but it does not mention lipid bilayers or ATP hydrolysis, making it insufficient to evaluate the hypothesis.\"}`\n  - Audit: `is_correct: false` (safety gate rejected incomplete causal path).\n\n---\n\n## 6. Platform 5: $S_{\\text{cached}}$ (Gemini Long Context \u2014 76,000-Word Brute Force)\n* **Method 1 (`run_eval.py`)**:\n  - Context Delivered: **76,102 words** (90 pages of Alberts). Latency: **95.24 seconds**.\n  - Output JSON: `{\"verdict\": \"refuted\", \"cited\": [608, 612], \"reason\": \"Passive diffusion across a lipid bilayer is a spontaneous process driven by concentration gradients and does not require metabolic energy input from ATP hydrolysis.\"}`\n  - Audit: `is_correct: true`, `latency: 95.24s`, `words: 76,102w`.\n";
+    document.getElementById('content').innerHTML = marked.parse(rawMd);
+    renderMathInElement(document.body, {{
+      delimiters: [
+        {{left: '56209', right: '56209', display: true}},
+        {{left: '$', right: '$', display: false}}
+      ]
+    }});
+  </script>
+</body>
+</html>

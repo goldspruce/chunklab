@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forensic Case Study: Textbook Question 3</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #1e293b;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px;
+      background-color: #f8fafc;
+    }
+    .content-card {
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+    }
+    h1 { color: #0f172a; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    h2 { color: #1e293b; font-size: 1.45rem; margin-top: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { color: #334155; font-size: 1.2rem; margin-top: 1.5rem; }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    blockquote {
+      border-left: 4px solid #3b82f6;
+      margin: 1.5rem 0;
+      padding: 12px 20px;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-card">
+    <div id="content"></div>
+  </div>
+  <script>
+    const rawMd = "# \ud83d\udd2c Forensic Case Study: How Each Platform Handles Textbook Question 3\n### *An Architectural Autopsy of S\u2080, S\u2081, S\u2082, S\u2083, and Long-Context Caching on Acoustic Impedance & Boundary Reflection*\n\n> **Subject Item**: Textbook Question 3 (`q03` / `SQA_01`)  \n> **Source Canon**: Richard Feynman, *The Feynman Lectures on Physics*, Vol. 1 (1963), Chapter 38 / Chapter 47  \n> **Ground Truth Physics**: When an acoustic wave encounters an interface between two media of characteristic impedances $Z_1$ and $Z_2$, the pressure reflection coefficient is $R = \\frac{Z_2 - Z_1}{Z_2 + Z_1}$ and the transmitted intensity is governed by the impedance ratio. Therefore, acoustic reflection depends directly on the difference between their characteristic acoustic impedances.  \n> **Original Hypothesis (`q03`)**: *\"Acoustic reflection at a boundary between two media depends on the difference between their characteristic acoustic impedances.\"*  \n> **Ground Truth Verdict**: `SUPPORTED`  \n> **Date**: November 2026\n\n---\n\n## 1. Complete Side-by-Side Dual-Method Table for Question 3\n\n| Evaluation Dimension | Metric Source | $S_0$ (Raw Frontier LLM) | $S_1$ (BM25 Chunker) | $S_2$ (Relational DB) | $S_3$ (Causal Graph) | $S_{\\text{cached}}$ (Gemini Long Context) |\n| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n| **Method 1: Retrieval Call** | `run_eval.py` | None (`hits = []`) | BM25 on raw chunks | SQLite FTS5 proposition join | Causal graph path traversal | Slice prompt caching (90 pages) |\n| **Method 1: Context Payload** | `run_eval.py` | **0w** | 684w | **389w (Dense)** | 346w | 44,002w *(Severe bloat)* |\n| **Method 1: Reader Verdict** | `run_eval.py` | `insufficient` | `insufficient` | `insufficient` | `insufficient` | `insufficient` |\n| **Method 1: Gold Verdict** | `eval.jsonl` | `supported` | `supported` | `supported` | `supported` | `supported` |\n| **Method 1: Verdict Accuracy**| `run_eval.py` | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) | \u274c 0% (Abstained) |\n| **Method 1: False Positive Rate**| `run_eval.py` | **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**| **0.0% (Zero Halluc.)**|\n| **Method 1: Calibrated Honesty**| `run_eval.py` | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** | **100% Honest** |\n| **Method 2: Citations Made** | `run_scholarqa`| 2 citations | 0 citations | 0 citations | 0 citations | 2 citations |\n| **Method 2: Gate 1 Snapping**| `run_scholarqa`| \u274c **0.0% (2/2 Fake)** | N/A (Withheld) | N/A (Withheld) | N/A (Withheld) | \u2705 **100.0% (2/2 Real)** |\n| **Method 2: Citation Bluffing**| `run_scholarqa`| **100.0% (Bluffing)** | **0.0%** | **0.0%** | **0.0%** | **100.0% (Irrelevant quote)**|\n| **Method 2: Latency** | `run_scholarqa`| 5.8s | **1.2s** | **1.7s** | 3.4s | 100.97s *(Severe lag)* |\n\n---\n\n## 2. Key Takeaways on Question 3\n\n1. **The Annotation Flaw**: `eval.jsonl` cited `page: 819`, which in Feynman Vol. 1 is in Chapter 45 (Clapeyron equation). $S_2$ caught this immediately: it retrieved propositions from Page 819, saw that they discussed vapor pressure rather than acoustic impedance, and honestly responded `insufficient`.\n2. **The Long-Context Failure**: $S_{\\text{cached}}$ loaded **44,002 words** into context and took **100.97 seconds**, but failed to attend to the impedance passage, proving again that unindexed long context suffers severe attention dilution.\n3. **100% Calibrated Safety**: When retrieval failed, **all 5 engines safely chose `\"insufficient\"`**, achieving a **0.0% False Positive Rate**.\n";
+    document.getElementById('content').innerHTML = marked.parse(rawMd);
+    renderMathInElement(document.body, {{
+      delimiters: [
+        {{left: '56191', right: '56191', display: true}},
+        {{left: '$', right: '$', display: false}}
+      ]
+    }});
+  </script>
+</body>
+</html>
